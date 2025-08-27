@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+
+@theme
+{
+  --color-background: var(--background);
+  --color-border: var(--borders);
+  --color-string-primary: var(--text);
+  --color-string-secondary: #8F8F8F;
+  --color-hero-bg: var(--hero-bg);
+  --color-hero-txt: var(--hero-txt);
+
+  --font-main: var(--font-main);
+  --font-menu: var(--font-menu);
+  --font-logo: var(--font-logo);
+  --font-numbers: var(--font-numbers);
+
+  
+}
+
+:root{
+  --background: #F8F5E9;
+  --borders: #2b2b2b;
+  --text: #2b2b2b;
+  --hero-bg: #161616;
+
+  --hero-txt: #D9D9D9;
+
+  --my-invert: 0;
+  --reverse-invert: 100;
+  --my-opacity: 80;
+}
+
+.dark
+{
+  --background: #161616;
+  --borders: #2A2F33;
+  --text: #fff;
+  --hero-bg: #D9D9D9;
+  --hero-txt: #000000;
+
+  --my-invert: 100;
+  --reverse-invert: 0;
+  --my-opacity: 20;
+
+}
+
+
+.text-stroke {
+  -webkit-text-stroke: 1px var(--color-background);
+}
