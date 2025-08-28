@@ -12,7 +12,8 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
       .from('news')
       .select('*')
-      .order('published_at');
+      .order('published_at')
+      .limit(20);
 
     if (error) throw error;
 

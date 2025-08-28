@@ -11,27 +11,23 @@ export const supabase = createClient(
 );
 
 // OpenAI client using server-side key
-const openai = new OpenAI({ apiKey: "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", dangerouslyAllowBrowser: true });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY});
 
 // RSS feeds to fetch
 const RSS_FEEDS = [
-  // latest newses
-  "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
   "https://www.aljazeera.com/xml/rss/all.xml",
   "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-  "https://www.reuters.com/world/rss",
   "https://rss.cnn.com/rss/edition_world.rss",
   "https://feeds.npr.org/1004/rss.xml",                 // NPR World
   "https://www.theguardian.com/world/rss",
   "https://www.economist.com/international/rss.xml",
 
   // Business / Markets
-  "https://www.reuters.com/finance/rss",                // Reuters business (often works)
   "https://www.marketwatch.com/rss/topstories",         // MarketWatch Top
-  "https://www.ft.com/world/rss",
+  "https://www.ft.com/world/rss",                       // FT World (some articles paywalled)
 
   // Technology
-  "https://www.reuters.com/technology/rss",
   "https://www.theverge.com/rss/index.xml",
   "https://techcrunch.com/feed/",
   "https://arstechnica.com/feed/",
@@ -40,7 +36,8 @@ const RSS_FEEDS = [
   // Science / Health
   "https://www.nature.com/subjects/science/rss",
   "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=science", // AAAS
-  "https://www.who.int/feeds/entity/csr/don/en/rss.xml",
+  "https://www.who.int/feeds/entity/csr/don/en/rss.xml",                   // WHO disease outbreaks
+
 
 
 
