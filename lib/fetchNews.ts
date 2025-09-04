@@ -11,62 +11,130 @@ export const supabase = createClient(
 );
 
 // OpenAI client using server-side key
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY});
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // RSS feeds to fetch
 const RSS_FEEDS = [
-    "https://feeds.bbci.co.uk/news/world/rss.xml",
+  "https://en.wikinews.org/w/api.php?hidebots=1&hidecategorization=1&hideWikibase=1&urlversion=1&days=1&limit=50&action=feedrecentchanges&feedformat=rss",
   "https://www.aljazeera.com/xml/rss/all.xml",
   "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-  "https://rss.cnn.com/rss/edition_world.rss",
-  "https://feeds.npr.org/1004/rss.xml",                 // NPR World
-  "https://www.theguardian.com/world/rss",
   "https://www.economist.com/international/rss.xml",
+  "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms",
+  "https://feeds.feedburner.com/ndtvnews-india-news",
+  "https://www.thehindu.com/news/national/feeder/default.rss",
+  "https://www.euronews.com/rss?level=theme&name=world",
+  "https://www.scmp.com/rss/91/feed",
+  "https://www.japantimes.co.jp/feed/",
+  "https://www.africanews.com/feed/rss",
+  "https://www.middleeasteye.net/rss/news",
+  "https://globalvoices.org/feed/",
+  "https://www.worldpoliticsreview.com/feed/",
+  "https://www.opendemocracy.net/en/feed/",
+  "https://foreignpolicy.com/feed/",
 
   // Business / Markets
-  "https://www.marketwatch.com/rss/topstories",         // MarketWatch Top
-  "https://www.ft.com/world/rss",                       // FT World (some articles paywalled)
+  "https://www.marketwatch.com/rss/topstories",
+  "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+  "https://www.economist.com/latest/rss.xml",
+  "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+  "https://qz.com/rss",
+
 
   // Technology
   "https://www.theverge.com/rss/index.xml",
   "https://techcrunch.com/feed/",
-  "https://arstechnica.com/feed/",
   "https://www.wired.com/feed/rss",
+  "https://lifehacker.com/feed/rss",
 
   // Science / Health
-  "https://www.nature.com/subjects/science/rss",
-  "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=science", // AAAS
-  "https://www.who.int/feeds/entity/csr/don/en/rss.xml",                   // WHO disease outbreaks
+  "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=science",
+  "https://www.sciencedaily.com/rss/top.xml",
+  "https://www.quantamagazine.org/feed/",
+
+  // Sports
+  "https://zeenews.india.com/rss/sports-news.xml",
+  "https://feeds.bbci.co.uk/sport/rss.xml?edition=global",
+  "https://www.espn.com/espn/rss/news",
+  "https://www.skysports.com/rss/12040",
+
+  // Culture & Gaming & etc
+  "https://www.ign.com/rss/articles/feed",
+  "https://variety.com/feed/",
+  "https://www.billboard.com/feed/"
+
 
 
 
 
 ];
 
+// --- Unsplash / Pexels fallback ---
+
+async function fetchStockImage(query: string): Promise<string | null> {
+  try {
+    // 🔹 Example with Unsplash
+    const unsplashRes = await fetch(
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1`
+    );
+
+    if (unsplashRes.ok) {
+      const data:any = await unsplashRes.json();
+      if (data.results?.length > 0) return data.results[0].urls.small;
+    }
+
+    // 🔹 If Unsplash fails, try Pexels
+    const pexelsRes = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1`
+    );
+
+    if (pexelsRes.ok) {
+      const data:any = await pexelsRes.json();
+      if (data.photos?.length > 0) return data.photos[0].src.medium;
+    }
+
+    return null;
+  } catch (err) {
+    console.error("Failed to fetch stock image:", err);
+    return null;
+  }
+}
+
+
+
 export async function fetchAndStoreNews() {
   for (const feedUrl of RSS_FEEDS) {
     const feed = await parser.parseURL(feedUrl);
 
 
-    for (const item of feed.items.splice(0, 2)) { // limit to 2 latest articles per feed
+    for (const item of feed.items.slice(0, 2)) { // limit to 5 latest articles per feed
       const summaryPrompt = `
-        Return a JSON object with:
-        - title: catchy with emojis; for serious news (death, disaster, war) use only emergency icons
-        - description: 20-30 words, simple language, some emojis
-        - summary: 150-200 words, fact-based, bold 3-4 key words, include emojis lightly
-        - bias_score: 0-10
-        - bias_reason: short and direct
-        - imgUrl: link to a relevant copyright-free image
-        - topic: one or two of [world, sports, politics, science, technology, business]
-        - rating: score based on relevancy, bias_score, and drama/controversy
+        You are an AI news summarizer. Return a **single JSON object** with the following fields:
+        - "title": catchy with emojis 🌟. For serious news (death, disaster, war), use a serious tone, no emojis.
+        - "description": 20-30 words, simple language, include some emojis.
+        - "summary": 250 words, fact-based, **bold 3-4 key words**, sprinkle emojis. do not go below 150 words. if no extra information is available give historical facts or other information in the article.
+        - "bias_score": 0-10 (0 = neutral, 10 = very biased). if non political and/or factual give 0 bias.
+        - "bias_reason": short explanation. 
+        - "topic": one of ["world", "sports", "politics", "science", "business", "entertainment"]. If technology or health, classify as "science".
+        - "rating": score based on importance and global or national impact.
+        - "tags": list 1-3 broader topics this article relates to. return short words all in small letters.
+        - "keyword":  The keyword should capture the main topic or idea in **one word**, lowercase, no special characters.
 
-        Article: ${item.contentSnippet || item.content || item.description}  
-        Title: ${item.title}
+        **Rules:**
+        1. If the article is personal experiences, opinion-based, tips, fiction or meta-news (like “BBC reports” or “see how The Economist covered”), **return null**.
+        2. Do not reference any news outlet; remove all traces of origin.
+        3. Be objective but frank. Use casual language if appropriate, except for serious news which must stay solemn.
+        4. Ensure output is strictly valid JSON.
+        5. Please completely reframe the article and change words to make it look as different as possible from the original
+        6. If there are any difficult words or technical words sometimes, please add a definition or meaning at the end of summary.
+
+        **Input Article:**
+        Title: "${item.title}"
+        Content: "${item.contentSnippet || item.content || item.description}"
         `;
 
 
       const gptResponse = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-5-nano",
         messages: [{ role: "user", content: summaryPrompt }]
       });
 
@@ -74,7 +142,7 @@ export async function fetchAndStoreNews() {
 
       let data: any = {};
       try {
-        data = JSON.parse(overall);
+        data = JSON.parse(overall.trim());
       } catch (err) {
         console.error("Failed to parse GPT response as JSON:", overall);
       }
@@ -126,6 +194,8 @@ export async function fetchAndStoreNews() {
       const topic = data.topic;
       // const rating = (data.rating*0.5)+(likes*0.3)+(dislikes*0.2);
       const rating = data.rating;
+      const tags = data.tags;
+      const imgKeyword = data.keyword;
 
       // First try RSS tags
       let imageUrl = extractImageFromItem(item);
@@ -134,18 +204,76 @@ export async function fetchAndStoreNews() {
       if (!imageUrl && item.link) {
         imageUrl = await fetchOgImage(item.link);
       }
-
-      // If still nothing, fallback to AI suggestion
+      if (!imageUrl)
+      {
+      imageUrl = await fetchStockImage(imgKeyword);
+      }
+      // If still no image, query Unsplash/Pexels by title/topic
       if (!imageUrl) {
-        imageUrl = data.imgUrl;
+        imageUrl = await fetchStockImage(title || topic);
       }
 
+      const articleId = `${feedUrl}|${item.guid || item.link}`;
 
 
+      function slugify(title: string): string {
+        return title
+          .toLowerCase()               // lowercase
+          .trim()                      // remove extra spaces
+          .replace(/[^a-z0-9\s-]/g, "") // remove special chars
+          .replace(/\s+/g, "-")        // spaces → dashes
+          .replace(/-+/g, "-");        // collapse multiple dashes
+      }
+
+      const slugTitle = slugify(title);
+      function isValidImageUrl(url: string | null): boolean {
+      return !!url && /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+
+      }
+
+      imageUrl = isValidImageUrl(imageUrl) ? imageUrl : null;
+
+      async function generateEmbedding(text: string) {
+  const res = await openai.embeddings.create({
+    model: "text-embedding-3-small",
+    input: text,
+  });
+  return res.data[0].embedding;
+}
+
+async function findSimilarArticle(embedding: number[]) {
+  const { data, error } = await supabase.rpc("match_news", {
+    query_embedding: embedding,
+    similarity_threshold: 0.9,  // 90% similarity
+    match_count: 1,
+  });
+  if (error) {
+    console.error("Similarity check error:", error);
+    return null;
+  }
+  return data?.[0] || null;
+}
+
+const textForEmbedding = `${title} ${summary}`;
+const embedding = await generateEmbedding(textForEmbedding);
+
+// check if similar article already exists
+const similar = await findSimilarArticle(embedding);
+
+if (similar) {
+  console.log(`Skipping duplicate: ${title} ~ same as ${similar.title}`);
+  continue; // don’t insert duplicate
+}
+
+  if (!imageUrl)
+  {
+    continue;
+  }
 
 
       // Insert into Supabase
       await supabase.from("news").upsert({
+        id: articleId,
         title: title,
         description: description,
         summary,
@@ -155,8 +283,11 @@ export async function fetchAndStoreNews() {
         bias_reason: bias_reason,
         topic: topic,
         rating: rating,
+        tags: tags,
+        slug: slugTitle,
+        embedding
 
-      });
+      }, { onConflict: 'id'});
     }
   }
 }

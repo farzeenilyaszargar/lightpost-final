@@ -6,7 +6,8 @@
   --color-background: var(--background);
   --color-border: var(--borders);
   --color-string-primary: var(--text);
-  --color-string-secondary: #8F8F8F;
+  --color-string-secondary: var(--text-second);
+  --color-secondary-col: var(--second-col);
   --color-hero-bg: var(--hero-bg);
   --color-hero-txt: var(--hero-txt);
 
@@ -19,11 +20,14 @@
 }
 
 :root{
-  --background: #F8F5E9;
+  
+  --background: #F5F5F5;
   --borders: #2b2b2b;
   --text: #2b2b2b;
-  --hero-bg: #161616;
+  --text-second: #7D7D7D;
+  --second-col: #B0B0B0;
 
+  --hero-bg: #161616;
   --hero-txt: #D9D9D9;
 
   --my-invert: 0;
@@ -34,8 +38,12 @@
 .dark
 {
   --background: #161616;
-  --borders: #2A2F33;
+  --borders: #44494D;
   --text: #fff;
+  --text-second: #7D7D7D;
+  --second-col: #44494D;
+
+
   --hero-bg: #D9D9D9;
   --hero-txt: #000000;
 
@@ -49,3 +57,16 @@
 .text-stroke {
   -webkit-text-stroke: 1px var(--color-background);
 }
+
+
+
+@keyframes marq
+{
+  0%{transform: translateX(0%);}
+  100%{transform: translateX(-100%);}
+}
+
+.marq{
+  animation: marq 60s linear infinite;
+}
+

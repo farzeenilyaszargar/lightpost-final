@@ -54,7 +54,7 @@ export default function Header() {
             <Top />
 
             <div className="flex  w-5/6 md:justify-around relative border-l border-r border-border  ">
-                <Link href="/" className="md:text-5xl text-3xl  font-logo pt-3 pb-3 ">LIGHTPOST</Link>
+                <Link href="/" className="md:text-5xl text-3xl  font-logo pt-3 pb-3 md:p-3 pl-5 ">LIGHTPOST</Link>
                 <div className="absolute right-0 h-full flex items-center ">
                     <button onClick={toggleDarkMode}>
                         {darkMode ? (
@@ -63,7 +63,8 @@ export default function Header() {
                             <Image src="/icons/moon.png" alt="moon" width={25} height={25} className="invert-[var(--my-invert)]" />
                         )}
                     </button>
-                    <Link href={'/'} className=" m-3">
+                    <Link href={'/'} className=" m-3 group relative">
+                        <div className="opacity-0 group-hover:opacity-100 bg-background z-100 w-fit h-fit border-2 absolute top-1 font-logo">anon</div>
                         <Image src={"/icons/profile.png"} alt="prof" width={35} height={35} className="invert-[var(--my-invert)]" />
                     </Link>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Gothic_A1, Instrument_Serif, Inria_Serif, Cabin } from 'next/font/google';
+import AnonIdProvider from "@/components/AnonIdProvider";
 
 // fonts -------------------------------------------------------------------------------
 
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className=
       {` ${gothic.variable} ${instrumentSerif.variable} ${inriaSerif.variable} ${cabin.variable}`}>
       <body className="border-border bg-background text-string-primary">
+        <AnonIdProvider/>
           {children}
       </body>
     </html>

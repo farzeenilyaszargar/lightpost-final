@@ -1,5 +1,8 @@
 "use client";
 
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import NavbarComp from "@/components/NavBar";
 import React, { useEffect, useState } from "react";
 
 export interface SudokuProps {
@@ -88,22 +91,46 @@ const Sudoku: React.FC<SudokuProps> = ({
   className = "",
   cellSize = 50,
   showTitle = true,
-  difficulty = "medium",
+  difficulty = "hard",
 }) => {
   const [solution, setSolution] = useState<Grid>([]);
   const [puzzle, setPuzzle] = useState<Grid>([]);
   const [grid, setGrid] = useState<Grid>([]);
   const [hints, setHints] = useState(3);
+  const [mistakes, setMistakes] = useState(0);
+  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
+  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null); // row, col of selected cell
+  const [time, setTime] = useState(0);
+  const [difficultyLevel, setDifficultyLevel] = useState<"easy" | "medium" | "hard" | "evil">(difficulty);
+
+
 
   useEffect(() => {
     const full = generateFullGrid();
     const sol = copyGrid(full);
-    const puz = removeNumbers(full, difficulty);
+    const puz = removeNumbers(full, difficultyLevel);
     setSolution(sol);
     setPuzzle(puz);
     setGrid(copyGrid(puz));
     setHints(3);
-  }, [difficulty]);
+    setMistakes(0);
+  }, [difficultyLevel]);
+
+  useEffect(() => {
+    setTime(0); // reset timer on new game
+    const interval = setInterval(() => {
+      setTime(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(interval); // cleanup when component unmounts or new game starts
+  }, [puzzle]); // runs whenever a new puzzle is generated
+
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
   const handleInput = (row: number, col: number, value: string) => {
     if (puzzle[row][col] !== 0) return; // don't allow changing clues
@@ -112,60 +139,120 @@ const Sudoku: React.FC<SudokuProps> = ({
       const newGrid = copyGrid(grid);
       newGrid[row][col] = val;
       setGrid(newGrid);
+      setSelectedNumber(val);
+
+      if (val !== solution[row][col]) {
+        setMistakes((prev) => prev + 1);
+      }
     } else if (value === "") {
       const newGrid = copyGrid(grid);
       newGrid[row][col] = 0;
       setGrid(newGrid);
+      setSelectedNumber(null);
     }
   };
 
   const giveHint = () => {
     if (hints <= 0) return;
     const empties: [number, number][] = [];
-    grid.forEach((row, r) => row.forEach((val, c) => { if (val === 0) empties.push([r,c]); }));
+    grid.forEach((row, r) => row.forEach((val, c) => { if (val === 0) empties.push([r, c]); }));
     if (empties.length === 0) return;
-    const [r,c] = empties[Math.floor(Math.random() * empties.length)];
+    const [r, c] = empties[Math.floor(Math.random() * empties.length)];
     const newGrid = copyGrid(grid);
     newGrid[r][c] = solution[r][c];
     setGrid(newGrid);
     setHints(hints - 1);
   };
+  const startNewGame = () => {
+    const full = generateFullGrid();
+    const sol = copyGrid(full);
+    const puz = removeNumbers(full, difficulty);
+    setSolution(sol);
+    setPuzzle(puz);
+    setGrid(copyGrid(puz));
+    setHints(3);
+    setMistakes(0);
+    setSelectedNumber(null);
+    setSelectedCell(null);
+    setTime(0);
+  };
+
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      {showTitle && <h2 className="text-xl font-bold mb-4 text-black dark:text-white">{title}</h2>}
-      <div className="grid grid-cols-9 border-4 border-black" style={{ width: cellSize*9, height: cellSize*9 }}>
-        {grid.map((row, r) =>
-          row.map((val, c) => {
-            const isClue = puzzle[r][c] !== 0;
-            const isCorrect = val === solution[r][c];
-            const isWrong = val !== 0 && val !== solution[r][c];
-            return (
-              <input
-                key={`${r}-${c}`}
-                value={val === 0 ? "" : val}
-                onChange={(e) => handleInput(r, c, e.target.value)}
-                className={`border text-center font-bold outline-none
-                  ${isClue ? "text-black" : isCorrect ? "text-green-600" : isWrong ? "text-red-600" : "text-black"}
-                  ${((c+1)%3===0 && c!==8) ? "border-r-4" : "border-r"}
-                  ${((r+1)%3===0 && r!==8) ? "border-b-4" : "border-b"}
-                  border-gray-700`}
-                style={{ width: cellSize, height: cellSize, fontSize: cellSize/2 }}
-                disabled={isClue}
-              />
-            );
-          })
-        )}
+      <Header />
+      <NavbarComp />
+      <div className=" w-5/6 flex flex-col justify-center items-center border-border border-l border-r h-full">
+        <div className="flex justify-between items-center w-115  m-4 mb-1">
+          <p className="font-bold text-lg">{title}</p>
+          <div className="text-sm">Time: {formatTime(time)}</div>
+        </div>
+        <div className="grid grid-cols-9 border-3 border-border">
+          {grid.map((row, r) =>
+            row.map((val, c) => {
+              const isClue = puzzle[r][c] !== 0;
+              const isCorrect = val === solution[r][c];
+              const isWrong = val !== 0 && val !== solution[r][c];
+              const isSelectedNumber = val === selectedNumber || null;
+
+              return (
+                <input
+                  key={`${r}-${c}`}
+                  value={val === 0 ? "" : val}
+                  onChange={(e) => handleInput(r, c, e.target.value)}
+                  onFocus={() => {
+                    setSelectedCell([r, c]);
+                    setSelectedNumber(grid[r][c] === 0 ? null : grid[r][c]);
+                  }}
+                  className={`border text-center font-bold outline-none caret-string-primary
+                  ${isClue ? "text-string-primary" : isCorrect ? "text-green-600" : isWrong ? "text-red-600" : "text-black"}
+                  ${((c + 1) % 3 === 0 && c !== 8) ? "border-r-3" : "border-r"}
+                  ${((r + 1) % 3 === 0 && r !== 8) ? "border-b-3" : "border-b"}
+                  ${isSelectedNumber ? "bg-secondary-col" : "bg-background"}
+                  border-border`}
+                  style={{ width: cellSize, height: cellSize, fontSize: cellSize / 2 }}
+                  disabled={isClue}
+                />
+              );
+            })
+          )}
+        </div>
+        <div className="flex gap-2 m-3 mt-5 ">
+          {(["easy", "medium", "hard", "evil"] as const).map((level) => (
+            <button
+              key={level}
+              onClick={() => setDifficultyLevel(level)}
+              className={`px-3 py-1 rounded 
+        ${difficultyLevel === level ? "bg-string-secondary text-black font-bold " : "bg-gray-200 text-black"}`}
+            >
+              {level.charAt(0).toUpperCase() + level.slice(1)}
+            </button>
+          ))}
+        </div>
+
+
+
+        <div className="flex gap-3 m-3  justify-around items-center ">
+          <button
+            onClick={giveHint}
+            disabled={hints <= 0}
+            className="px-2 py-1 bg-string-primary text-background rounded disabled:opacity-50"
+          >
+            💡 Hint ({hints})
+          </button>
+          <button
+            onClick={startNewGame}
+            className="px-2 py-1 bg-string-primary text-background rounded"
+          >
+            🔄 New Game
+          </button>
+          <p>Mistakes: {mistakes}</p>
+
+        </div>
       </div>
-      <div className="flex gap-2 mt-4">
-        <button
-          onClick={giveHint}
-          disabled={hints <= 0}
-          className="px-4 py-2 bg-black text-white rounded disabled:opacity-50"
-        >
-          Hint ({hints})
-        </button>
-      </div>
+
+      <Footer />
+
     </div>
   );
 };

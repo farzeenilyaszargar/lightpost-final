@@ -12,8 +12,8 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
       .from('news')
       .select('*')
-      .order('published_at')
-      .limit(20);
+      .order('rating', {ascending: false})
+      .limit(100);
 
     if (error) throw error;
 
