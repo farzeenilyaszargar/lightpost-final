@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import placeholder from "../../../public/placeholder.png";
 import React from "react";
-import WordOfTheDay from "./WordDay";
-import ImpButtons from "@/components/Buttons";
+import WordOfTheDay from "@/components/WordOfDay";
+
 
 
 
