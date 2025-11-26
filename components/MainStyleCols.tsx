@@ -4,13 +4,8 @@ import { NewsItem } from "@/types/news";
 import Image from "next/image";
 import Link from "next/link";
 import InteractionBtns from "./InteractionBtns";
+import { AdItem } from "@/types/ad";
 
-type AdItem = {
-  id: string;
-  image_url: string;
-  title: string;
-  description: string;
-};
 
 type MixedItem = NewsItem | AdItem;
 
@@ -31,8 +26,8 @@ export default function NewsGridCols({ news, colIndex, numCols = 4 }: Props) {
         if ("topic" in item && "slug" in item) {
           return (
             <div key={item.id} className="block">
-              <Link href={`/news/${item.topic}/${item.slug}`}>
-                <div className="border border-border p-2 rounded-2xl">
+              <div className="border border-border p-2 rounded-2xl ">
+                <Link className="block" href={`/news/${item.topic}/${item.slug}`}>
                   {item.image_url ? (
                     <Image
                       src={item.image_url}
@@ -53,15 +48,10 @@ export default function NewsGridCols({ news, colIndex, numCols = 4 }: Props) {
                   )}
                   <h2 className="font-semibold text-xl mt-2">{item.title}</h2>
                   <p className="text-sm text-string-secondary">{item.description}</p>
-                </div>
-              </Link>
-              <InteractionBtns
-                newsId={item.id}
-                likes={item.likes}
-                dislikes={item.dislikes}
-                comments={0}
-                interactions={0}
-              />
+                </Link>
+                <InteractionBtns newsId={item.id} likes={item.likes} dislikes={item.dislikes} comments={0} interactions={item.interactions} />
+              </div>
+              
             </div>
           );
         } else {

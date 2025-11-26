@@ -27,8 +27,8 @@ type MixedItem = NewsItem | AdItem;
 
 const adItems: AdItem[] = [
   { id: "ad-1", image_url: "/ads/ad1.png", title: "Get Flights Cheap! 🎉", description: "superflights has the cheapest flights"} ,
-  { id: "ad-2", image_url: "/ads/ad2.png", title: "Try Out Surfers Today! 🎉", description: "superflights has the cheapest flights" } ,
-  { id: "ad-3", image_url: "/images/sudoku.png", title: "Check Out Sudoku ->", description: "superflights has the cheapest flights" } ,
+  { id: "ad-2", image_url: "/ads/ad2.png", title: "Try Out Surfers Today! 🎉", description: "surf in the seas" } ,
+  { id: "ad-3", image_url: "/images/sudoku.png", title: "Check Out Sudoku", description: "ads 3rd the lool" } ,
 
 ];
 
@@ -50,7 +50,7 @@ export default function AnotherTry() {
     async function loadNews() {
       const res = await fetch('/api/news');
       const data: NewsItem[] = await res.json();
-      setNews(data);
+      setNews(Array.isArray(data) ? data : []);
     }
     loadNews();
   }, []);
@@ -87,7 +87,7 @@ export default function AnotherTry() {
 
         {/* Left column */}
         <div className="md:w-1/4 space-y-5">
-          <h1 className="text-xl p-3 mb-0 font-bold -mt-3">What Happening 🌏</h1>
+          <h1 className="text-2xl p-3 mb-0 font-bold -mt-3">What Happening 🌏</h1>
           <SummaryOfTheDay />
           <div className="space-y-5 ">
             <NewsGridCols news={otherNews} colIndex={0} />
@@ -112,7 +112,11 @@ export default function AnotherTry() {
                 )}
                 <p className="font-para text-sm mt-2 text-string-secondary">{topNewsItem.description}</p>
               </Link>
-              <InteractionBtns newsId={topNewsItem.id} likes={topNewsItem.likes} dislikes={topNewsItem.dislikes} comments={0} interactions={0} />
+              <div className="w-full flex justify-center">
+                <div className="w-2/3">
+              <InteractionBtns newsId={topNewsItem.id} likes={topNewsItem.likes} dislikes={topNewsItem.dislikes} comments={0} interactions={topNewsItem.interactions} />
+                </div>
+              </div>
             </div>
           )}
           <div className="flex md:flex-row flex-col space-x-5">

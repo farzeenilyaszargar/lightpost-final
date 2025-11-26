@@ -15,14 +15,11 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // RSS feeds to fetch
 const RSS_FEEDS = [
-  "https://en.wikinews.org/w/api.php?hidebots=1&hidecategorization=1&hideWikibase=1&urlversion=1&days=1&limit=50&action=feedrecentchanges&feedformat=rss",
   "https://www.aljazeera.com/xml/rss/all.xml",
   "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
   "https://www.economist.com/international/rss.xml",
   "https://timesofindia.indiatimes.com/rssfeeds/296589292.cms",
   "https://feeds.feedburner.com/ndtvnews-india-news",
-  "https://www.thehindu.com/news/national/feeder/default.rss",
-  "https://www.euronews.com/rss?level=theme&name=world",
   "https://www.scmp.com/rss/91/feed",
   "https://www.japantimes.co.jp/feed/",
   "https://www.africanews.com/feed/rss",
@@ -78,7 +75,7 @@ async function fetchStockImage(query: string): Promise<string | null> {
     );
 
     if (unsplashRes.ok) {
-      const data:any = await unsplashRes.json();
+      const data: any = await unsplashRes.json();
       if (data.results?.length > 0) return data.results[0].urls.small;
     }
 
@@ -88,7 +85,7 @@ async function fetchStockImage(query: string): Promise<string | null> {
     );
 
     if (pexelsRes.ok) {
-      const data:any = await pexelsRes.json();
+      const data: any = await pexelsRes.json();
       if (data.photos?.length > 0) return data.photos[0].src.medium;
     }
 
@@ -106,46 +103,8 @@ export async function fetchAndStoreNews() {
     const feed = await parser.parseURL(feedUrl);
 
 
-    for (const item of feed.items.slice(0, 2)) { // limit to 5 latest articles per feed
-      const summaryPrompt = `
-        You are an AI news summarizer. Return a **single JSON object** with the following fields:
-        - "title": catchy with emojis 🌟. For serious news (death, disaster, war), use a serious tone, no emojis.
-        - "description": 20-30 words, simple language, include some emojis.
-        - "summary": 250 words, fact-based, **bold 3-4 key words**, sprinkle emojis. do not go below 150 words. if no extra information is available give historical facts or other information in the article.
-        - "bias_score": 0-10 (0 = neutral, 10 = very biased). if non political and/or factual give 0 bias.
-        - "bias_reason": short explanation. 
-        - "topic": one of ["world", "sports", "politics", "science", "business", "entertainment"]. If technology or health, classify as "science".
-        - "rating": score based on importance and global or national impact.
-        - "tags": list 1-3 broader topics this article relates to. return short words all in small letters.
-        - "keyword":  The keyword should capture the main topic or idea in **one word**, lowercase, no special characters.
-
-        **Rules:**
-        1. If the article is personal experiences, opinion-based, tips, fiction or meta-news (like “BBC reports” or “see how The Economist covered”), **return null**.
-        2. Do not reference any news outlet; remove all traces of origin.
-        3. Be objective but frank. Use casual language if appropriate, except for serious news which must stay solemn.
-        4. Ensure output is strictly valid JSON.
-        5. Please completely reframe the article and change words to make it look as different as possible from the original
-        6. If there are any difficult words or technical words sometimes, please add a definition or meaning at the end of summary.
-
-        **Input Article:**
-        Title: "${item.title}"
-        Content: "${item.contentSnippet || item.content || item.description}"
-        `;
-
-
-      const gptResponse = await openai.chat.completions.create({
-        model: "gpt-5-nano",
-        messages: [{ role: "user", content: summaryPrompt }]
-      });
-
-      const overall = gptResponse.choices[0].message?.content || "";
-
-      let data: any = {};
-      try {
-        data = JSON.parse(overall.trim());
-      } catch (err) {
-        console.error("Failed to parse GPT response as JSON:", overall);
-      }
+    for (const item of feed.items.slice(0, 50)) { // limit to 5 latest articles per feed
+      
 
       // Extract images from RSS item XML or fields
       function extractImageFromItem(item: any): string | null {
@@ -179,6 +138,60 @@ export async function fetchAndStoreNews() {
         }
       }
 
+      let imageUrl = extractImageFromItem(item);
+
+      // If no RSS image, try scraping the article's og:image
+      if (!imageUrl && item.link) {
+        imageUrl = await fetchOgImage(item.link);
+        imageUrl = isValidImageUrl(imageUrl) ? imageUrl : null;
+
+      }
+      else
+      {
+        continue;
+      }
+
+
+
+      const summaryPrompt = `
+        You are an AI news summarizer. Return a **single JSON object** with the following fields:
+        - "title": catchy with emojis. For serious news (death, disaster, war), use a serious tone, no emojis.
+        - "description": 20-30 words, simple language, include some emojis in between.
+        - "summary": 100 words, fact-based, **bold 3-4 key words**, sprinkle emojis. do not go below 50 words. if no extra information is available give historical facts or other information in the article. please write in a quirky tone.
+        - "bias_score": 0-10 (0 = neutral, 10 = very biased). if non political and/or factual give 0 bias.
+        - "bias_reason": short explanation. 
+        - "topic": one of ["world", "sports", "politics", "science", "business", "entertainment"]. If technology or health, classify as "science". if geopolitics or other just put in politics. classify no matter what into some category.
+        - "rating": score based on importance and global or national impact.
+        - "tags": list 1-3 broader topics this article relates to. return short words all in small letters.
+        - "keyword":  The keyword should capture the main topic or idea in **one word**, lowercase, no special characters.
+
+        **Rules:**
+        1. If the article is personal experiences, opinion-based, tips, fiction or meta-news (like “BBC reports” or “see how The Economist covered”), **return null**.
+        2. Do not reference any news outlet; remove all traces of origin.
+        3. Be objective but frank. Use casual language if appropriate, except for serious news which must stay solemn.
+        4. Ensure output is strictly valid JSON.
+        5. Please completely reframe the article and change words to make it look as different as possible from the original
+        6. If there are any difficult words or technical words sometimes, please add a definition or meaning at the end of summary.
+
+        **Input Article:**
+        Title: "${item.title}"
+        Content: "${item.contentSnippet || item.content || item.description}"
+        `;
+
+
+      const gptResponse = await openai.chat.completions.create({
+        model: "gpt-5-nano",
+        messages: [{ role: "user", content: summaryPrompt }]
+      });
+
+      const overall = gptResponse.choices[0].message?.content || "";
+
+      let data: any = {};
+      try {
+        data = JSON.parse(overall.trim());
+      } catch (err) {
+        console.error("Failed to parse GPT response as JSON:", overall);
+      }
 
 
 
@@ -198,21 +211,7 @@ export async function fetchAndStoreNews() {
       const imgKeyword = data.keyword;
 
       // First try RSS tags
-      let imageUrl = extractImageFromItem(item);
-
-      // If no RSS image, try scraping the article's og:image
-      if (!imageUrl && item.link) {
-        imageUrl = await fetchOgImage(item.link);
-      }
-      if (!imageUrl)
-      {
-      imageUrl = await fetchStockImage(imgKeyword);
-      }
-      // If still no image, query Unsplash/Pexels by title/topic
-      if (!imageUrl) {
-        imageUrl = await fetchStockImage(title || topic);
-      }
-
+      
       const articleId = `${feedUrl}|${item.guid || item.link}`;
 
 
@@ -227,67 +226,77 @@ export async function fetchAndStoreNews() {
 
       const slugTitle = slugify(title);
       function isValidImageUrl(url: string | null): boolean {
-      return !!url && /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+        return !!url && /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i.test(url);
 
       }
 
-      imageUrl = isValidImageUrl(imageUrl) ? imageUrl : null;
 
-      async function generateEmbedding(text: string) {
-  const res = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: text,
-  });
-  return res.data[0].embedding;
-}
+      // async function generateEmbedding(text: string) {
+      //   const res = await openai.embeddings.create({
+      //     model: "text-embedding-3-small",
+      //     input: text,
+      //   });
+      //   return res.data[0].embedding;
+      // }
 
-async function findSimilarArticle(embedding: number[]) {
-  const { data, error } = await supabase.rpc("match_news", {
-    query_embedding: embedding,
-    similarity_threshold: 0.9,  // 90% similarity
-    match_count: 1,
-  });
-  if (error) {
-    console.error("Similarity check error:", error);
-    return null;
-  }
-  return data?.[0] || null;
-}
+      // async function findSimilarArticle(embedding: number[]) {
+      //   try {
+      //     const { data, error } = await supabase.rpc("match_news", {
+      //       query_embedding: embedding,
+      //       similarity_threshold: 0.9, // 90% similarity
+      //       match_count: 1,
+      //     });
 
-const textForEmbedding = `${title} ${summary}`;
-const embedding = await generateEmbedding(textForEmbedding);
+      //     if (error) {
+      //       // Throw an error so you can catch it upstream or display it
+      //       throw new Error(`Supabase RPC 'match_news' error: ${JSON.stringify(error)}`);
+      //     }
 
-// check if similar article already exists
-const similar = await findSimilarArticle(embedding);
+      //     // Return the first similar article if found, or null
+      //     return data?.[0] || null;
 
-if (similar) {
-  console.log(`Skipping duplicate: ${title} ~ same as ${similar.title}`);
-  continue; // don’t insert duplicate
-}
+      //   } catch (err: any) {
+      //     // Log detailed info for debugging
+      //     console.error("Error in findSimilarArticle:", err);
+      //     // Optionally, propagate the error so API/frontend can see it
+      //     throw new Error(`Failed to find similar article: ${err.message || err}`);
+      //   }
+      // }
 
-  if (!imageUrl)
-  {
-    continue;
-  }
+
+      // const textForEmbedding = `${title} ${summary}`;
+      // const embedding = await generateEmbedding(textForEmbedding);
+
+      // check if similar article already exists
+      // const similar = await findSimilarArticle(embedding);
+
+      // if (similar) {
+      //   console.log(`Skipping duplicate: ${title} ~ same as ${similar.title}`);
+      //   continue; // don’t insert duplicate
+      // }
+
 
 
       // Insert into Supabase
-      await supabase.from("news").upsert({
-        id: articleId,
-        title: title,
-        description: description,
-        summary,
-        published_at: item.pubDate,
-        image_url: imageUrl,
-        bias_score: biasScore,
-        bias_reason: bias_reason,
-        topic: topic,
-        rating: rating,
-        tags: tags,
-        slug: slugTitle,
-        embedding
+      try {
+        await supabase.from("news").upsert({
+          id: articleId,
+          title,
+          description,
+          summary,
+          published_at: item.pubDate ? new Date(item.pubDate) : new Date(),
+          image_url: imageUrl,
+          bias_score: biasScore || 0,
+          bias_reason: bias_reason || "",
+          topic: topic || "world",
+          rating: rating || 0,
+          tags: tags || [],
+          slug: slugTitle,
+        }, { onConflict: 'id' });
+      } catch (err) {
+        console.error("Supabase upsert failed:", err);
+      }
 
-      }, { onConflict: 'id'});
     }
   }
 }

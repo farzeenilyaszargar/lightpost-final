@@ -33,7 +33,7 @@ export default function WordOfTheDay() {
   const pron = word.pronounciation.toLowerCase();
   return (
     <div className="p-5 border border-border rounded-2xl bg-background overflow-hidden ">
-      <p className="text-2xl font-semibold font-main">{word.word}<span className="text-xs ml-2 text-string-secondary font-extralight">{word.part_of_speech}</span></p>
+      <p className="text-2xl font-black font-main">{word.word}<span className="text-xs ml-2 text-string-secondary font-extralight">{word.part_of_speech}</span></p>
       <p className="text-sm text-string-secondary font-extralight">{pron}</p>
       <p className="text-string-secondary mt-2 text-sm">{word.definition}</p>
     </div>

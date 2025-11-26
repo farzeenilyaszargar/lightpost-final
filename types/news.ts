@@ -12,6 +12,7 @@ export type NewsItem = {
     topic: string;
     rating: number;
     likes: number;
+    interactions:number;
     dislikes: number;
     slug: string;
     tags: string[];

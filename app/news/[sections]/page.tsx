@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js';
 import DispPageTitle from "@/components/VisualTitle";
 import NewsGrid from "@/components/NewsComp";
 import { useParams } from "next/navigation";
+import { AdItem } from "@/types/ad";
 
 type Props = {
   params: { sections: string };
@@ -22,21 +23,15 @@ const supabase = createClient(
 
 
 
-type AdItem= {
-  id:string;
-  image_url:string;
-  title:string;
-  description:string;
-}
-
 type MixedItem = NewsItem | AdItem;
 
 
 
 const adItems: AdItem[] = [
-  { id: "ad-1", image_url: "/ads/ad1.png", title: "Get Flights Cheap! 🎉", description: "superflights has the cheapest flights"} ,
-  { id: "ad-2", image_url: "/ads/ad2.png", title: "Try Out Surfers Today! 🎉", description: "superflights has the cheapest flights" } ,
-  { id: "ad-3", image_url: "/images/sudoku.png", title: "Check Out Sudoku ->", description: "superflights has the cheapest flights" } ,
+  { id: "ad-1", image_url: "/ads/ad1.png", title: "Get Flights Cheap! 🎉", description: "superflights has the cheapest flights", links:"https://www.superflights.co.in/"} ,
+  { id: "ad-2", image_url: "/ads/ad2.png", title: "Try Out Surfers Today! 🎉", description: "superflights has the cheapest flights" , links:"https://www.surfers.co.in/"} ,
+  { id: "ad-3", image_url: "/ads/ad3.png", title: "Check Out Games", description: "", links:"/fun/" } ,
+  { id: "ad-4", image_url: "/ads/ad4.png", title: "Comics", description: "check out funny comics", links:"/fun/comics" } ,
 
 ];
 

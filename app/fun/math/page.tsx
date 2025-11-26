@@ -199,10 +199,10 @@ export default function MathPuzzle({
           </div>
 
           <div className="flex gap-3 mt-6">
-            <button onClick={handleHint} disabled={hintsLeft <= 0} className="px-3 py-2 bg-black text-white rounded">
+            <button onClick={handleHint} disabled={hintsLeft <= 0} className="px-2 py-1 bg-black text-white rounded">
               Hint ({hintsLeft})
             </button>
-            <button onClick={() => window.location.reload()} className="px-3 py-2 border rounded">
+            <button onClick={() => window.location.reload()} className="px-2 py-1 border rounded">
               New
             </button>
           </div>

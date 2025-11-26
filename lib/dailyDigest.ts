@@ -66,7 +66,7 @@ export async function runDailyDigest() {
       .join("\n\n");
 
     const summaryPrompt = `
-      Based on the following news from the last 24 hours, write a concise 50-60 words "Summary of the Day".
+      Based on the following news from the last 24 hours, write a concise 40-50 words "Summary of the Day".
       News:
       ${combinedText}
 

@@ -1,13 +1,9 @@
+import { AdItem } from "@/types/ad";
 import { NewsItem } from "@/types/news";
 import Image from "next/image";
 import Link from "next/link";
 
-type AdItem = {
-  id: string;
-  image_url: string;
-  title: string;
-  description: string;
-};
+
 
 type MixedItem = NewsItem | AdItem;
 
@@ -67,8 +63,13 @@ export default function NewsGrid({ news }: { news: MixedItem[] }) {
                       unoptimized
                     />
                   )}
-                  <h2 className="font-bold text-lg mt-2">{item.title}</h2>
-                  <p className="text-sm text-string-secondary">{item.description}</p>
+                  <h2 className="font-bold text-lg my-2">{item.title}</h2>
+                  <p className="text-sm text-string-secondary my-1">{item.description}</p>
+                  {item.links?
+                  (
+                    <Link href={item.links} className="border text-xs rounded-2xl px-2 py-1 bg-background hover:invert" >Check Out 🔗</Link>
+                  ):(<></>)
+                  }
                 </div>
               );
             }
