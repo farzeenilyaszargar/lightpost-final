@@ -1,8 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import type { NewsFeed, NewsItem, Topic } from "@/types/news";
+import { useNewsPage } from "./useNewsPage";
+import type { NewsPage, NewsItem, Topic } from "@/types/news";
 import { topicLabels } from "@/types/news";
 import StoryActions from "./StoryActions";
 import StoryImage from "./StoryImage";
@@ -21,7 +20,7 @@ export function StoryCard({
     <article
       className={`border border-border rounded-2xl ${featured ? "p-3" : "p-2"} font-main`}
     >
-      <Link href={storyUrl(article)} className="block">
+      <Link prefetch={false} href={storyUrl(article)} className="block">
         {featured && (
           <h2 className="text-3xl mb-3 font-black">{article.title}</h2>
         )}
@@ -92,38 +91,28 @@ const words = [
   },
 ];
 export default function NewsExplorer({
-  feed,
+  feed: initialFeed,
   topic,
 }: {
-  feed: NewsFeed;
+  feed: NewsPage;
   topic?: Topic;
 }) {
-  const [query, setQuery] = useState(""),
-    [source, setSource] = useState("all"),
-    [visible, setVisible] = useState(20);
-  const [pending, startTransition] = useTransition();
-  const router = useRouter();
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible")
-        startTransition(() => router.refresh());
-    }, 300000);
-    return () => window.clearInterval(timer);
-  }, [router]);
-  const articles = useMemo(
-    () =>
-      feed.articles.filter(
-        (article) =>
-          (source === "all" || article.source === source) &&
-          `${article.title} ${article.description} ${article.source} ${article.topic}`
-            .toLowerCase()
-            .includes(query.toLowerCase().trim()),
-      ),
-    [feed.articles, source, query],
-  );
-  const filtering = !!query || source !== "all";
+  const {
+    feed,
+    articles,
+    query,
+    setQuery,
+    source,
+    setSource,
+    pending,
+    loadingMore,
+    error,
+    refresh,
+    more,
+  } = useNewsPage(initialFeed, topic);
+  const filtering = !!query.trim() || source !== "all";
   const top = articles[0];
-  const rest = articles.slice(1, visible + 1);
+  const rest = articles.slice(1);
   const word =
     words[
       Math.floor(Date.parse(feed.updatedAt || "2026-01-01") / 86400000) %
@@ -160,10 +149,10 @@ export default function NewsExplorer({
             <label>
               <span className="sr-only">Search headlines</span>
               <input
+                maxLength={160}
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
-                  setVisible(20);
                 }}
                 placeholder="Search headlines…"
                 className="bg-background border border-border rounded-full px-3 py-1.5 w-40"
@@ -175,7 +164,6 @@ export default function NewsExplorer({
                 value={source}
                 onChange={(e) => {
                   setSource(e.target.value);
-                  setVisible(20);
                 }}
                 className="bg-background border border-border rounded-full px-2 py-1.5"
               >
@@ -186,8 +174,8 @@ export default function NewsExplorer({
             </label>
             <button
               aria-label="Refresh headlines"
-              onClick={() => startTransition(() => router.refresh())}
-              disabled={pending}
+              onClick={refresh}
+              disabled={pending || loadingMore}
               className="px-1 text-lg"
             >
               ↻
@@ -203,7 +191,22 @@ export default function NewsExplorer({
                 : "News sources are unavailable. Please try refreshing shortly."}
           </p>
         )}
-        {!articles.length ? (
+        {error && (
+          <p role="alert" className="m-5 text-sm text-string-secondary">
+            {error}{" "}
+            <button className="underline" onClick={refresh}>
+              Retry
+            </button>
+          </p>
+        )}
+        {pending && !articles.length ? (
+          <div
+            className="p-10 text-center text-string-secondary min-h-64"
+            role="status"
+          >
+            Looking up headlines…
+          </div>
+        ) : !articles.length ? (
           <div className="p-10 text-center">
             <h2 className="text-xl font-bold mb-3">
               {filtering
@@ -229,7 +232,7 @@ export default function NewsExplorer({
           </div>
         ) : topic || filtering ? (
           <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
-            {articles.slice(0, visible).map((article) => (
+            {articles.map((article) => (
               <StoryCard key={article.id} article={article} />
             ))}
           </div>
@@ -278,14 +281,14 @@ export default function NewsExplorer({
             </div>
           </div>
         )}
-        {(topic || filtering ? articles.length : articles.length - 1) >
-          visible && (
+        {feed.nextOffset !== null && articles.length > 0 && (
           <div className="text-center p-5">
             <button
               className="border border-border rounded-full px-5 py-2 text-sm hover:bg-string-primary hover:text-background"
-              onClick={() => setVisible((n) => n + 20)}
+              disabled={pending || loadingMore}
+              onClick={more}
             >
-              More news ↓
+              {loadingMore ? "Loading more…" : "More news ↓"}
             </button>
           </div>
         )}

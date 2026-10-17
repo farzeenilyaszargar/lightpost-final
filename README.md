@@ -27,7 +27,9 @@ npm run dev -- --port 3001
 
 ### JSON API
 
-`GET /api/news` returns all topics. `GET /api/news?topic=technology` returns one topic.
+`GET /api/news` returns the first 21 headlines across all topics. `GET /api/news?topic=technology` returns the first page of one topic.
+
+Use `offset=21` for the next page; `limit` is 1–100 (default 21). Search the complete cached edition using `q`, and filter using `source=BBC News` or `source=The Guardian`. Search and filtering happen before pagination. Example: `/api/news?topic=science&q=space&limit=21&offset=0`.
 
 Topics: `world`, `politics`, `business`, `technology`, `science`, `sports`, `entertainment`.
 
@@ -36,11 +38,13 @@ Topics: `world`, `politics`, `business`, `technology`, `science`, `sports`, `ent
   "articles": [],
   "updatedAt": null,
   "stale": false,
-  "unavailableSources": []
+  "unavailableSources": [],
+  "total": 0,
+  "nextOffset": null
 }
 ```
 
-Articles include `id`, `title`, `description`, `published_at`, `image_url`, `topic`, `slug`, `source`, and `source_url`. Unknown topics return 400. Total source unavailability without a saved edition returns 503. The response uses five-minute shared-cache headers.
+Articles include `id`, `title`, `description`, `published_at`, `image_url`, `topic`, `slug`, `source`, and `source_url`. Unknown topics return 400. Total source unavailability without a saved edition returns 503. The response uses five-minute shared-cache headers and a short browser cache. Invalid limits, offsets, and source filters return 400.
 
 ## Reading experience
 
@@ -65,6 +69,8 @@ npm run lint
 npm run typecheck
 npm run build
 npm start
+# Against a running production server:
+npm run perf:check -- http://localhost:3000
 ```
 
 Tests cover feed normalization, unsafe URLs, deduplication, source outages, daily seeds and edition boundaries, unique Sudoku solutions, word-game terminal states, arithmetic validation, every chess problem’s mating move, and sliding-puzzle solvability/undo.
@@ -76,3 +82,11 @@ Tests cover feed normalization, unsafe URLs, deduplication, source outages, dail
 - [xkcd JSON interface](https://xkcd.com/json.html)
 
 Publisher content remains credited to its source. Feeds are externally maintained and their availability and contents can change.
+
+## Loading performance
+
+The four original font families are self-hosted with Latin and Latin Extended subsets and their OFL licenses in `public/fonts/`. Only four critical faces are preloaded; all font filenames contain content hashes and receive immutable cache headers. No font provider request is required at build time or in the browser.
+
+The first news render includes 21 stories. Load more, search, and publisher filters fetch small API pages; search still covers every cached story. Article and section links do not prefetch entire collections. Publisher images use responsive WebP optimization on an explicit host allowlist, reserve their layout space, and load lazily except for the lead image. Image optimization requires the normal Node/Next.js server or compatible hosting.
+
+`npm run perf:check` guards production HTML, stylesheet, initial story count, preload count, and API payload budgets. [Measured before/after results](docs/performance.md) describe the scope and limitations of the local comparison.

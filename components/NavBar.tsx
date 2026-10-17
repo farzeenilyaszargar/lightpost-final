@@ -87,6 +87,7 @@ export default function NavbarComp() {
           const isActive = isRouteActive(item.link, path);
           return (
             <Link
+              prefetch={false}
               key={item.name}
               href={item.link}
               className={`flex shrink-0 font-bold font-menu items-center ${isActive ? "" : ""}`}

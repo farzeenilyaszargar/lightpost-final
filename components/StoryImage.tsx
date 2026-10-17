@@ -1,6 +1,7 @@
-/* eslint-disable @next/next/no-img-element -- Publisher images load directly with a client-side failure fallback. */
 "use client";
+import Image from "next/image";
 import { useState } from "react";
+import { optimizableImage } from "@/lib/image-policy";
 export default function StoryImage({
   src,
   title,
@@ -12,16 +13,25 @@ export default function StoryImage({
   topic: string;
   eager?: boolean;
 }) {
-  const [failed, setFailed] = useState(false);
-  // Publisher images load directly to preserve attribution and support an image fallback.
-  return src && !failed ? (
-    <img
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  return src && src !== failedSource ? (
+    <Image
       src={src}
       alt={title}
+      width={800}
+      height={533}
+      sizes={
+        eager
+          ? "(max-width: 767px) 83vw, 42vw"
+          : "(max-width: 639px) 83vw, (max-width: 767px) 42vw, 21vw"
+      }
+      priority={eager}
+      fetchPriority={eager ? "high" : "auto"}
       loading={eager ? "eager" : "lazy"}
-      decoding="async"
+      unoptimized={!optimizableImage(src)}
+      quality={75}
       referrerPolicy="no-referrer"
-      onError={() => setFailed(true)}
+      onError={() => setFailedSource(src)}
       className="story-image"
     />
   ) : (

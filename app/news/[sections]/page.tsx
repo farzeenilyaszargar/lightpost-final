@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import NewsExplorer from "@/components/NewsExplorer";
 import NewsSkeleton from "@/components/NewsSkeleton";
+import { pageNews } from "@/lib/news-page";
 import { getNews } from "@/lib/news";
 import { topics, topicLabels, type Topic } from "@/types/news";
 export const revalidate = 300;
@@ -17,7 +18,13 @@ export async function generateMetadata({
   return { title: topicLabels[sections as Topic] || "News" };
 }
 async function TopicEdition({ topic }: { topic: Topic }) {
-  return <NewsExplorer feed={await getNews(topic)} topic={topic} />;
+  return (
+    <NewsExplorer
+      key={topic}
+      feed={pageNews(await getNews(topic))}
+      topic={topic}
+    />
+  );
 }
 export default async function TopicPage({
   params,

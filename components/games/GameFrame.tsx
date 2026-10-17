@@ -20,7 +20,7 @@ export default function GameFrame({
 }) {
   return (
     <section className="puzzle-page">
-      <Link href="/fun" className="amusement-back">
+      <Link prefetch={false} href="/fun" className="amusement-back">
         ← Return to the Amusements
       </Link>
       <header className="puzzle-title">

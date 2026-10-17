@@ -34,3 +34,4 @@ export type NewsFeed = {
   stale: boolean;
   unavailableSources: string[];
 };
+export type NewsPage = NewsFeed & { total: number; nextOffset: number | null };

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { topics, type Topic, type NewsFeed } from "@/types/news";
 import { deduplicate } from "./news-utils";
@@ -20,7 +21,7 @@ const cachedTopic = unstable_cache(
   ["lightpost-rss-v2"],
   { revalidate: 300 },
 );
-export async function getNews(topic?: Topic): Promise<NewsFeed> {
+export const getNews = cache(async (topic?: Topic): Promise<NewsFeed> => {
   if (topic) return cachedTopic(topic);
   const feeds = await Promise.all(topics.map((t) => cachedTopic(t)));
   const dates = feeds
@@ -35,7 +36,7 @@ export async function getNews(topic?: Topic): Promise<NewsFeed> {
       ...new Set(feeds.flatMap((feed) => feed.unavailableSources)),
     ],
   };
-}
+});
 export async function getArticle(topic: Topic, slug: string) {
   return (
     (await getNews(topic)).articles.find((article) => article.slug === slug) ||

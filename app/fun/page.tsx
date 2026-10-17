@@ -32,6 +32,7 @@ export default function Amusements() {
       <div className="amusement-cards">
         {gameList.map((game, i) => (
           <Link
+            prefetch={false}
             className="amusement-card"
             key={game.id}
             href={`/fun/${game.id}`}
@@ -64,7 +65,9 @@ export default function Amusements() {
           The games work without an external service; comics have an in-house
           alternative.
         </p>
-        <Link href="/">Return to the dispatches →</Link>
+        <Link prefetch={false} href="/">
+          Return to the dispatches →
+        </Link>
       </div>
     </section>
   );
