@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { NewsItem } from "@/types/news";
 import { readBookmarks } from "./BookmarkButton";
 import { StoryCard } from "./NewsExplorer";
+import VisualTitle from "./VisualTitle";
 export default function SavedStories() {
   const [items, setItems] = useState<NewsItem[]>([]),
     [ready, setReady] = useState(false);
@@ -21,47 +22,49 @@ export default function SavedStories() {
     };
   }, []);
   return (
-    <main id="main" className="site-container saved-main">
-      <div className="edition-heading">
-        <div>
-          <span className="eyebrow">YOUR READING LIST</span>
-          <h1>
-            Worth <em>coming back to.</em>
-          </h1>
-          <p>
-            Stories saved in this browser. Full reports always live at the
-            source.
-          </p>
-        </div>
+    <main
+      id="main"
+      className="flex flex-col items-center min-h-[70vh] font-main"
+    >
+      <VisualTitle title="Saved stories" />
+      <div className="w-5/6 border-l border-r border-border p-5 flex-1">
+        <p className="text-sm text-string-secondary mb-5">
+          Saved in this browser. You can always open the original report, even
+          after it leaves the news feed.
+        </p>
+        {!ready ? (
+          <p>Loading saved stories…</p>
+        ) : items.length ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
+            {items.map((article) => (
+              <div key={article.id}>
+                <StoryCard article={article} />
+                <a
+                  className="inline-block text-xs text-string-secondary mt-2"
+                  href={article.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Read original report ↗
+                </a>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center p-10">
+            <h2 className="text-2xl font-bold mb-3">No saved stories yet</h2>
+            <p className="text-string-secondary mb-5">
+              Use the bookmark on a story to save it here.
+            </p>
+            <Link
+              href="/"
+              className="border border-border rounded-full px-4 py-2"
+            >
+              Back to the news ↗
+            </Link>
+          </div>
+        )}
       </div>
-      {!ready ? (
-        <p>Loading your bookmarks…</p>
-      ) : items.length ? (
-        <div className="stories-grid">
-          {items.map((article) => (
-            <div key={article.id}>
-              <StoryCard article={article} />
-              <a
-                href={article.source_url}
-                className="saved-original"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Read original report ↗
-              </a>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="empty-state">
-          <span>◇</span>
-          <h2>A little space for your curiosity.</h2>
-          <p>Tap the bookmark on any story to save it here.</p>
-          <Link href="/" className="primary-button">
-            Find your next read ↗
-          </Link>
-        </div>
-      )}
     </main>
   );
 }

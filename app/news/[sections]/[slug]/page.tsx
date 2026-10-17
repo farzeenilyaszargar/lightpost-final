@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
-import NavBar from "@/components/NavBar";
+import Navbar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import StoryImage from "@/components/StoryImage";
-import BookmarkButton from "@/components/BookmarkButton";
-import { getArticle, getNews } from "@/lib/news";
+import StoryActions from "@/components/StoryActions";
+import { getArticle } from "@/lib/news";
 import { topics, topicLabels, type Topic } from "@/types/news";
 type Props = { params: Promise<{ sections: string; slug: string }> };
 export const revalidate = 300;
@@ -14,7 +14,9 @@ export async function generateMetadata({ params }: Props) {
   if (!topics.includes(sections as Topic)) return {};
   const article = await getArticle(sections as Topic, slug);
   return {
-    title: article?.title || "Story unavailable",
+    title: article
+      ? `${article.title} | Lightpost`
+      : "Story unavailable | Lightpost",
     description: article?.description,
   };
 }
@@ -24,42 +26,29 @@ export default async function ArticlePage({ params }: Props) {
   const topic = sections as Topic;
   const article = await getArticle(topic, slug);
   if (!article) notFound();
-  const related = (await getNews(topic)).articles
-    .filter((item) => item.id !== article.id)
-    .slice(0, 3);
   return (
     <>
       <Header />
-      <NavBar />
-      <main id="main" className="site-container article-main">
-        <Link href={`/news/${topic}`} className="back-link">
-          ← Back to {topicLabels[topic]}
-        </Link>
-        <article className="article-layout">
-          <div className="article-content">
-            <div className="eyebrow topic-tag">
-              {topicLabels[topic]} / THE DISPATCH
+      <Navbar />
+      <main
+        id="main"
+        className="w-5/6 border-border border-l border-r mx-auto p-5 md:p-6 pb-20 font-main"
+      >
+        <div className="md:w-1/2 mx-auto">
+          <Link
+            href={`/news/${topic}`}
+            className="text-xs text-string-secondary inline-block mb-4"
+          >
+            ← Back to {topicLabels[topic]}
+          </Link>
+          <article className="border border-border rounded-2xl p-5">
+            <div className="flex gap-2 mb-3">
+              <span className="border border-border px-2 rounded-2xl text-string-secondary text-sm">
+                {topicLabels[topic]}
+              </span>
             </div>
-            <h1>{article.title}</h1>
-            <div className="article-byline">
-              <a
-                href={article.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {article.source} ↗
-              </a>
-              <time dateTime={article.published_at}>
-                {new Date(article.published_at).toLocaleString("en", {
-                  dateStyle: "long",
-                  timeStyle: "short",
-                  timeZone: "UTC",
-                })}{" "}
-                UTC
-              </time>
-              <BookmarkButton article={article} />
-            </div>
-            <div className="article-image">
+            <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
+            <div className="rounded-xl overflow-hidden mb-6">
               <StoryImage
                 src={article.image_url}
                 title={article.title}
@@ -67,35 +56,37 @@ export default async function ArticlePage({ params }: Props) {
                 eager
               />
             </div>
-            <p className="article-description">{article.description}</p>
-            <div className="source-note">
-              <span className="eyebrow">GO TO THE SOURCE</span>
-              <h2>There’s more to the story.</h2>
-              <p>
-                This is the publisher’s feed excerpt. Read the full report,
-                context, and updates directly at {article.source}.
+            <p className="leading-relaxed text-base text-string-secondary">
+              {article.description}
+            </p>
+            <time
+              dateTime={article.published_at}
+              className="block text-string-secondary text-right text-xs mt-3"
+            >
+              {new Date(article.published_at).toLocaleString("en", {
+                dateStyle: "medium",
+                timeStyle: "short",
+                timeZone: "Asia/Kolkata",
+              })}{" "}
+              IST
+            </time>
+            <div className="mt-5 pt-4 border-t border-border">
+              <p className="text-sm text-string-secondary mb-3">
+                This is the publisher&apos;s news excerpt. Read the full report
+                at the original source.
               </p>
               <a
                 href={article.source_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="primary-button"
+                className="inline-block border border-border rounded-2xl px-3 py-1 text-sm hover:bg-string-primary hover:text-background"
               >
                 Read at {article.source} ↗
               </a>
             </div>
-          </div>
-          <aside className="related-stories">
-            <span className="eyebrow">FOLLOW THE THREAD</span>
-            <h2>More in {topicLabels[topic]}</h2>
-            {related.map((item) => (
-              <Link key={item.id} href={`/news/${topic}/${item.slug}`}>
-                <h3>{item.title}</h3>
-                <span>{item.source} ↗</span>
-              </Link>
-            ))}
-          </aside>
-        </article>
+            <StoryActions article={article} />
+          </article>
+        </div>
       </main>
       <Footer />
     </>

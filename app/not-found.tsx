@@ -5,15 +5,20 @@ export default function NotFound() {
   return (
     <>
       <Header />
-      <main id="main" className="site-container empty-state">
-        <span>404</span>
-        <h1>This story has moved on.</h1>
-        <p>
-          The link may be incorrect, or the story may have left the current news
-          feed.
+      <main
+        id="main"
+        className="w-5/6 mx-auto border-l border-r border-border min-h-[70vh] flex flex-col justify-center items-center p-5 font-main text-center"
+      >
+        <h1 className="font-black text-7xl">404</h1>
+        <p className="font-extralight text-xl mt-3">Page Not Found 😬</p>
+        <p className="text-sm text-string-secondary mt-3">
+          This story may have left the current news feed.
         </p>
-        <Link className="primary-button" href="/">
-          Explore the latest headlines ↗
+        <Link
+          href="/"
+          className="m-5 border border-border rounded-2xl px-4 py-2"
+        >
+          Go Back
         </Link>
       </main>
       <Footer />

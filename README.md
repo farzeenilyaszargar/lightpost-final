@@ -1,6 +1,6 @@
 # Lightpost
 
-A responsive news reader built with Next.js 15, React 19, TypeScript, and Tailwind CSS 4. News comes from the public BBC News and Guardian RSS feeds. **No API keys, database, account, or environment variables are needed.**
+A news reader with the original monochrome, serif newspaper layout, built with Next.js 15, React 19, TypeScript, and Tailwind CSS 4. News comes from the public BBC News and Guardian RSS feeds. **No API keys, database, account, or environment variables are needed.**
 
 ## Run locally
 
@@ -48,7 +48,9 @@ Articles include `id`, `title`, `description`, `published_at`, `image_url`, `top
 - Responsive navigation, light/dark themes, loading and error states, keyboard focus indicators, and reduced-motion support.
 - Bookmarks stored only in the current browser (up to 200). No login or tracking identity.
 - Publisher attribution and direct original-report links on cards and article pages.
-- A break room with Sudoku, hangman, math, solvable sliding puzzles, chess, and xkcd comics. Comics use a same-origin proxy to the official xkcd JSON endpoint; chess depends on ChessPuzzle's public daily endpoint and shows an outage state when unavailable.
+- The original LIGHTPOST masthead, four font families, monochrome themes, bordered page frame, four-column home layout, rounded cards, introductory banner, and scrolling section titles.
+- A word-of-the-day sidebar using a small local vocabulary list; no AI request or database is involved.
+- The original Fun page with Sudoku, hangman, math, solvable sliding puzzles, chess, and xkcd comics. Comics use a same-origin proxy to the official xkcd JSON endpoint; chess depends on ChessPuzzle's public daily endpoint and shows an outage state when unavailable.
 
 The previous Supabase/OpenAI ingestion jobs, fake bias ratings, database reaction counters, sample news fallback, ad injection, and unused stock endpoints have been removed. Any old deployed environment keys can be removed from hosting settings. The `supabase/` SQL migration is retained only as historical reference and is not used by this app.
 

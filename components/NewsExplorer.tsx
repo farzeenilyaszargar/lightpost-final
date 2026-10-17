@@ -1,19 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
 import type { NewsFeed, NewsItem, Topic } from "@/types/news";
 import { topicLabels } from "@/types/news";
-import BookmarkButton from "./BookmarkButton";
+import StoryActions from "./StoryActions";
 import StoryImage from "./StoryImage";
-function dateLabel(date: string) {
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    timeZone: "Asia/Kolkata",
-  }).format(new Date(date));
-}
+import VisualTitle from "./VisualTitle";
 function storyUrl(article: NewsItem) {
   return `/news/${article.topic}/${article.slug}`;
 }
@@ -25,48 +18,79 @@ export function StoryCard({
   featured?: boolean;
 }) {
   return (
-    <article className={featured ? "story-card featured-story" : "story-card"}>
-      <Link
-        href={storyUrl(article)}
-        className="story-image-link"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
-        <StoryImage
-          src={article.image_url}
-          title={article.title}
-          topic={article.topic}
-          eager={featured}
-        />
+    <article
+      className={`border border-border rounded-2xl ${featured ? "p-3" : "p-2"} font-main`}
+    >
+      <Link href={storyUrl(article)} className="block">
+        {featured && (
+          <h2 className="text-3xl mb-3 font-black">{article.title}</h2>
+        )}
+        <div
+          className={`overflow-hidden ${featured ? "rounded-2xl" : "rounded-lg"}`}
+        >
+          <StoryImage
+            src={article.image_url}
+            title={article.title}
+            topic={article.topic}
+            eager={featured}
+          />
+        </div>
+        {!featured && (
+          <h2 className="font-semibold text-xl mt-2">{article.title}</h2>
+        )}
+        <p className="text-sm mt-2 text-string-secondary leading-relaxed">
+          {article.description}
+        </p>
       </Link>
-      <div className="story-body">
-        <div className="story-topline">
-          <span className="eyebrow topic-tag">
-            {topicLabels[article.topic]}
-          </span>
-          <BookmarkButton article={article} />
-        </div>
-        <h2>
-          <Link href={storyUrl(article)}>{article.title}</Link>
-        </h2>
-        <p className="story-description">{article.description}</p>
-        <div className="story-meta">
-          <a
-            href={article.source_url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {article.source} ↗
-          </a>
-          <span>·</span>
-          <time dateTime={article.published_at}>
-            {dateLabel(article.published_at)}
-          </time>
-        </div>
-      </div>
+      <StoryActions article={article} />
     </article>
   );
 }
+const words = [
+  {
+    word: "Perspective",
+    pronunciation: "/per-spek-tiv/",
+    definition: "A particular way of looking at or understanding something.",
+    part: "noun",
+  },
+  {
+    word: "Discern",
+    pronunciation: "/di-surn/",
+    definition: "To recognise something clearly through careful thought.",
+    part: "verb",
+  },
+  {
+    word: "Nuance",
+    pronunciation: "/noo-ahns/",
+    definition:
+      "A small but meaningful difference in expression or understanding.",
+    part: "noun",
+  },
+  {
+    word: "Inquisitive",
+    pronunciation: "/in-kwiz-i-tiv/",
+    definition: "Curious and eager to learn more.",
+    part: "adjective",
+  },
+  {
+    word: "Lucid",
+    pronunciation: "/loo-sid/",
+    definition: "Expressed clearly and easily understood.",
+    part: "adjective",
+  },
+  {
+    word: "Resilient",
+    pronunciation: "/ri-zil-yunt/",
+    definition: "Able to recover after difficulty or change.",
+    part: "adjective",
+  },
+  {
+    word: "Serendipity",
+    pronunciation: "/seh-ren-dip-i-tee/",
+    definition: "The chance discovery of something pleasant or useful.",
+    part: "noun",
+  },
+];
 export default function NewsExplorer({
   feed,
   topic,
@@ -76,15 +100,15 @@ export default function NewsExplorer({
 }) {
   const [query, setQuery] = useState(""),
     [source, setSource] = useState("all"),
-    [visible, setVisible] = useState(12);
+    [visible, setVisible] = useState(20);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   useEffect(() => {
-    const interval = window.setInterval(() => {
+    const timer = window.setInterval(() => {
       if (document.visibilityState === "visible")
         startTransition(() => router.refresh());
-    }, 300_000);
-    return () => window.clearInterval(interval);
+    }, 300000);
+    return () => window.clearInterval(timer);
   }, [router]);
   const articles = useMemo(
     () =>
@@ -98,187 +122,102 @@ export default function NewsExplorer({
     [feed.articles, source, query],
   );
   const filtering = !!query || source !== "all";
-  const leading = articles[0];
+  const top = articles[0];
+  const rest = articles.slice(1, visible + 1);
+  const word =
+    words[
+      Math.floor(Date.parse(feed.updatedAt || "2026-01-01") / 86400000) %
+        words.length
+    ];
+  const column = (index: number) =>
+    rest
+      .filter((_, i) => i % 4 === index)
+      .map((article) => <StoryCard key={article.id} article={article} />);
   return (
-    <main id="main" className="site-container news-main">
-      <section className="edition-heading">
-        <div>
-          <div className="eyebrow edition-label">
-            <span className="orange-dot" />
-            THE LIGHTPOST EDITION
-          </div>
-          <h1>
-            {topic ? (
-              topicLabels[topic]
-            ) : (
-              <>
-                The world, <em>in perspective.</em>
-              </>
-            )}
-          </h1>
-          <p>
-            {topic
-              ? `Fresh perspectives and the latest developments in ${topicLabels[topic].toLowerCase()}.`
-              : "The stories that matter. A little less noise. A little more understanding."}
-          </p>
-        </div>
-        <div className="edition-date">
-          <span>
-            {new Intl.DateTimeFormat("en", {
-              weekday: "long",
-              timeZone: "Asia/Kolkata",
-            }).format(new Date())}
-          </span>
-          <strong>
-            {new Intl.DateTimeFormat("en", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-              timeZone: "Asia/Kolkata",
-            }).format(new Date())}
-          </strong>
-          <small>YOUR DAILY DOSE OF PERSPECTIVE</small>
-        </div>
-      </section>
-      <div className="feed-toolbar">
-        <div className="feed-status">
-          <span
-            className={
-              feed.articles.length ? "status-dot" : "status-dot offline"
-            }
-          />
-          <strong>
-            {feed.stale
-              ? "Saved edition"
-              : feed.articles.length
-                ? "Latest headlines"
-                : "Feeds unavailable"}
-          </strong>
-          <span className="update-time">
-            {feed.updatedAt
-              ? `Updated ${new Date(feed.updatedAt).toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" })} IST`
-              : "Try again shortly"}
-          </span>
-        </div>
-        <div className="feed-controls">
-          <label className="search-box">
-            <span aria-hidden="true">⌕</span>
-            <input
-              aria-label="Search headlines"
-              placeholder="Find a story…"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setVisible(12);
-              }}
-            />
-            {query && (
-              <button aria-label="Clear search" onClick={() => setQuery("")}>
-                ×
-              </button>
-            )}
-          </label>
-          <button
-            className="refresh-button"
-            disabled={pending}
-            onClick={() => startTransition(() => router.refresh())}
-            aria-label="Refresh headlines"
-          >
-            <span className={pending ? "spinning" : ""}>↻</span>
-          </button>
-        </div>
-      </div>
-      {feed.unavailableSources.length > 0 && (
-        <p className="feed-notice" role="status">
-          {feed.stale
-            ? "Showing the last available edition while our sources reconnect."
-            : feed.articles.length
-              ? "Some feeds are temporarily unavailable. Available stories are shown below."
-              : "We couldn’t reach our news sources. Please try refreshing in a few minutes."}
-        </p>
+    <main id="main" className="w-full flex flex-col items-center">
+      {topic ? (
+        <VisualTitle title={topicLabels[topic]} />
+      ) : (
+        <h1 className="sr-only">Latest news</h1>
       )}
-      {!filtering && leading && (
-        <section className="lead-layout" aria-label="Top stories">
-          <StoryCard article={leading} featured />
-          <aside className="briefing">
-            <div className="briefing-heading">
-              <span className="eyebrow">THE QUICK READ</span>
-              <span aria-hidden="true">↗</span>
-            </div>
-            <h2>
-              Around the world
-              <br />
-              <em>in a few headlines.</em>
-            </h2>
-            <ol>
-              {articles.slice(1, 5).map((article, i) => (
-                <li key={article.id}>
-                  <span className="brief-number">0{i + 1}</span>
-                  <div>
-                    <span className="eyebrow">
-                      {topicLabels[article.topic]}
-                    </span>
-                    <Link href={storyUrl(article)}>{article.title}</Link>
-                    <small>{article.source}</small>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <div className="briefing-note">
-              <span className="orange-dot" />
-              Different sources. A wider view.
-            </div>
-          </aside>
-        </section>
-      )}
-      <section className="latest-section" aria-label="News stories">
-        <div className="section-heading">
+      <div className="w-5/6 border-l border-r border-border font-main">
+        <div className="newspaper-toolbar m-5 mb-0 pb-3 border-b border-border flex flex-wrap justify-between items-center gap-3 text-xs">
           <div>
-            <span className="eyebrow">KEEP EXPLORING</span>
-            <h2>
-              {filtering ? "Your search results" : "The latest dispatches"}
-              <span>
-                {filtering ? articles.length : Math.max(0, articles.length - 1)}
+            <span>{feed.stale ? "Last available edition" : "Latest news"}</span>
+            {feed.updatedAt && (
+              <span className="text-string-secondary ml-3">
+                Updated{" "}
+                {new Date(feed.updatedAt).toLocaleTimeString("en", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  timeZone: "Asia/Kolkata",
+                })}{" "}
+                IST
               </span>
-            </h2>
+            )}
           </div>
-          <label className="source-filter">
-            <span className="sr-only">Filter by source</span>
-            <select
-              value={source}
-              onChange={(event) => {
-                setSource(event.target.value);
-                setVisible(12);
-              }}
+          <div className="flex gap-3 items-center flex-wrap">
+            <label>
+              <span className="sr-only">Search headlines</span>
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setVisible(20);
+                }}
+                placeholder="Search headlines…"
+                className="bg-background border border-border rounded-full px-3 py-1.5 w-40"
+              />
+            </label>
+            <label>
+              <span className="sr-only">Filter by source</span>
+              <select
+                value={source}
+                onChange={(e) => {
+                  setSource(e.target.value);
+                  setVisible(20);
+                }}
+                className="bg-background border border-border rounded-full px-2 py-1.5"
+              >
+                <option value="all">All sources</option>
+                <option>BBC News</option>
+                <option>The Guardian</option>
+              </select>
+            </label>
+            <button
+              aria-label="Refresh headlines"
+              onClick={() => startTransition(() => router.refresh())}
+              disabled={pending}
+              className="px-1 text-lg"
             >
-              <option value="all">All sources</option>
-              <option>BBC News</option>
-              <option>The Guardian</option>
-            </select>
-          </label>
-        </div>
-        {articles.length ? (
-          <div className="stories-grid">
-            {(filtering ? articles : articles.slice(1))
-              .slice(0, visible)
-              .map((article) => (
-                <StoryCard key={article.id} article={article} />
-              ))}
+              ↻
+            </button>
           </div>
-        ) : (
-          <div className="empty-state">
-            <span>↗</span>
-            <h2>
-              {filtering ? "No stories found" : "A quiet moment in the feed"}
-            </h2>
-            <p>
+        </div>
+        {feed.unavailableSources.length > 0 && (
+          <p role="status" className="m-5 text-sm text-string-secondary">
+            {feed.stale
+              ? "Showing the last available news while sources reconnect."
+              : feed.articles.length
+                ? "Some sources are temporarily unavailable. Available stories are shown below."
+                : "News sources are unavailable. Please try refreshing shortly."}
+          </p>
+        )}
+        {!articles.length ? (
+          <div className="p-10 text-center">
+            <h2 className="text-xl font-bold mb-3">
               {filtering
-                ? "Try another keyword or choose a different source."
-                : "Our sources are taking a moment. Please check back shortly."}
+                ? "No matching stories"
+                : "No news available right now"}
+            </h2>
+            <p className="text-string-secondary">
+              {filtering
+                ? "Try a different keyword or source."
+                : "Please try again in a few minutes."}
             </p>
             {filtering && (
               <button
-                className="primary-button"
+                className="border border-border rounded-full px-4 py-2 mt-4"
                 onClick={() => {
                   setQuery("");
                   setSource("all");
@@ -288,31 +227,69 @@ export default function NewsExplorer({
               </button>
             )}
           </div>
-        )}
-        {(filtering ? articles.length : articles.length - 1) > visible && (
-          <div className="load-more">
-            <button onClick={() => setVisible((n) => n + 12)}>
-              More stories <span>↓</span>
-            </button>
-            <p>Follow your curiosity.</p>
+        ) : topic || filtering ? (
+          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
+            {articles.slice(0, visible).map((article) => (
+              <StoryCard key={article.id} article={article} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex md:flex-row flex-col justify-between pt-5 gap-5 p-5">
+            <div className="md:w-1/4 min-w-0 space-y-5">
+              <h2 className="text-2xl p-3 mb-0 font-bold -mt-3">
+                What&apos;s Happening 🌏
+              </h2>
+              <div className="p-3 border border-border rounded-2xl">
+                <p className="text-sm text-string-secondary leading-relaxed">
+                  Fresh headlines from BBC News and The Guardian. Read different
+                  perspectives and follow each story to its original source.
+                </p>
+              </div>
+              <div className="space-y-5">{column(0)}</div>
+            </div>
+            <div className="md:w-1/2 min-w-0">
+              <div className="mb-5">
+                {top && <StoryCard article={top} featured />}
+              </div>
+              <div className="flex sm:flex-row flex-col gap-5">
+                <div className="sm:w-1/2 min-w-0 space-y-5">{column(1)}</div>
+                <div className="sm:w-1/2 min-w-0 space-y-5">{column(2)}</div>
+              </div>
+            </div>
+            <div className="md:w-1/4 min-w-0 space-y-5">
+              <aside className="p-5 border border-border rounded-2xl">
+                <h2 className="text-xs text-string-secondary mb-2">
+                  Word of the Day
+                </h2>
+                <p className="text-2xl font-black">
+                  {word.word}
+                  <span className="text-xs ml-2 text-string-secondary font-extralight">
+                    ({word.part})
+                  </span>
+                </p>
+                <p className="text-sm text-string-secondary font-extralight">
+                  {word.pronunciation}
+                </p>
+                <p className="text-sm text-string-secondary mt-2">
+                  {word.definition}
+                </p>
+              </aside>
+              <div className="space-y-5">{column(3)}</div>
+            </div>
           </div>
         )}
-      </section>
-      <section className="break-banner">
-        <div>
-          <span className="eyebrow">ROOM FOR SOMETHING LIGHTER</span>
-          <h2>
-            A good read. <em>A little reset.</em>
-          </h2>
-          <p>Give your mind a different kind of headline.</p>
-        </div>
-        <Link href="/fun">
-          Visit the break room <span>↗</span>
-        </Link>
-        <span className="banner-art" aria-hidden="true">
-          ✳
-        </span>
-      </section>
+        {(topic || filtering ? articles.length : articles.length - 1) >
+          visible && (
+          <div className="text-center p-5">
+            <button
+              className="border border-border rounded-full px-5 py-2 text-sm hover:bg-string-primary hover:text-background"
+              onClick={() => setVisible((n) => n + 20)}
+            >
+              More news ↓
+            </button>
+          </div>
+        )}
+      </div>
     </main>
   );
 }

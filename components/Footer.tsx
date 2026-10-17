@@ -1,16 +1,9 @@
-import Link from "next/link";
 export default function Footer() {
   return (
-    <footer className="site-footer site-container">
-      <Link href="/" className="footer-brand">
-        lightpost.
-      </Link>
-      <p>Stay curious. Read widely.</p>
-      <span>
-        Headlines from <a href="https://www.bbc.com/news">BBC News</a> &{" "}
-        <a href="https://www.theguardian.com">The Guardian</a>.
-      </span>
-      <a href="#top">Back to top ↑</a>
-    </footer>
+    <div className="bg-background text-text w-full flex flex-col items-center border-t border-border ">
+      <div className="w-5/6 h-full border-border border-l border-r pt-5 pb-5 ">
+        <p className="text-xs text-center">you&apos;ve reached the end ☺️</p>
+      </div>
+    </div>
   );
 }

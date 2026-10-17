@@ -1,30 +1,62 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Cabin } from "next/font/google";
 import "./globals.css";
-const serif = Instrument_Serif({
+import {
+  Gothic_A1,
+  Instrument_Serif,
+  Inria_Serif,
+  Cabin,
+} from "next/font/google";
+
+// fonts -------------------------------------------------------------------------------
+
+const gothic = Gothic_A1({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-editorial",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-menu",
 });
-const sans = Cabin({ subsets: ["latin"], variable: "--font-sans" });
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-logo",
+});
+
+const inriaSerif = Inria_Serif({
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+  variable: "--font-main",
+});
+
+const cabin = Cabin({
+  subsets: ["latin"],
+  variable: "--font-numbers",
+});
+
+// meta -------------------------------------------------------------------------------
 export const metadata: Metadata = {
-  title: { default: "Lightpost — A clearer view", template: "%s | Lightpost" },
+  title: "Lightpost | Latest news",
   description:
-    "A considered collection of the latest headlines from BBC News and The Guardian. Find your perspective, follow your curiosity.",
+    "The latest headlines from BBC News and The Guardian, in the Lightpost newspaper.",
 };
+
+// root -------------------------------------------------------------------------------
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
-      className={`${serif.variable} ${sans.variable}`}
-      suppressHydrationWarning
+      className={` ${gothic.variable} ${instrumentSerif.variable} ${inriaSerif.variable} ${cabin.variable}`}
     >
-      <body id="top">
-        <a className="skip-link" href="#main">
+      <body
+        id="top"
+        className="border-border bg-background text-string-primary"
+      >
+        <a href="#main" className="skip-link">
           Skip to content
         </a>
+
         {children}
       </body>
     </html>
