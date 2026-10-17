@@ -1,29 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { getFallbackNewsAll } from '@/lib/fallbackNews';
-
-// Create Supabase client with server-side keys
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-export async function GET(req: NextRequest) {
-  try {
-    const { data, error } = await supabase
-      .from('news')
-      .select('*')
-      .order('rating', {ascending: false})
-      .limit(100);
-
-    if (error || !data || data.length === 0) {
-      if (error) console.error("Supabase fetch error:", error);
-      return NextResponse.json(getFallbackNewsAll());
-    }
-
-    return NextResponse.json(data);
-  } catch (err) {
-    console.error("News API fallback:", err);
-    return NextResponse.json(getFallbackNewsAll());
-  }
+import { NextRequest, NextResponse } from "next/server";
+import { getNews } from "@/lib/news";
+import { topics, type Topic } from "@/types/news";
+export async function GET(request: NextRequest) {
+  const topic = request.nextUrl.searchParams.get("topic");
+  if (topic && !topics.includes(topic as Topic))
+    return NextResponse.json({ error: "Unknown topic" }, { status: 400 });
+  const feed = await getNews(topic as Topic | undefined);
+  return NextResponse.json(feed, {
+    status: feed.articles.length ? 200 : 503,
+    headers: {
+      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+    },
+  });
 }

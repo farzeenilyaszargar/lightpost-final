@@ -1,13 +1,22 @@
 import Link from "next/link";
-
-
-export default function NotFound()
-{
-    return(
-        <div className="h-screen w-screen flex flex-col justify-center items-center bg-background text-string-primary">
-            <p className="font-black text-7xl">404</p>
-            <p className="font-extralight  text-xl">Page Not Found 😬</p>
-            <Link href={'/'} className="m-5 border rounded-2xl p-2 pl-4 pr-4 ">Go Back</Link>
-        </div>
-    );
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+export default function NotFound() {
+  return (
+    <>
+      <Header />
+      <main id="main" className="site-container empty-state">
+        <span>404</span>
+        <h1>This story has moved on.</h1>
+        <p>
+          The link may be incorrect, or the story may have left the current news
+          feed.
+        </p>
+        <Link className="primary-button" href="/">
+          Explore the latest headlines ↗
+        </Link>
+      </main>
+      <Footer />
+    </>
+  );
 }

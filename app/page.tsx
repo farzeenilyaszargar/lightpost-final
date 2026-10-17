@@ -1,22 +1,23 @@
+import { Suspense } from "react";
 import Header from "@/components/Header";
-import NavbarComp from "@/components/NavBar";
+import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import Hero from "@/components/Hero";
-import AnotherTry from "./news/latest/another";
-
-
-
+import NewsExplorer from "@/components/NewsExplorer";
+import NewsSkeleton from "@/components/NewsSkeleton";
+import { getNews } from "@/lib/news";
+export const revalidate = 300;
+async function Edition() {
+  return <NewsExplorer feed={await getNews()} />;
+}
 export default function Home() {
   return (
-    <div className="">
-        <Header/>
-        <NavbarComp/>
-        <Hero/>
-        <AnotherTry/>
-        <Footer/>
-
-        
-
-    </div>
+    <>
+      <Header />
+      <NavBar />
+      <Suspense fallback={<NewsSkeleton />}>
+        <Edition />
+      </Suspense>
+      <Footer />
+    </>
   );
 }

@@ -1,37 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lightpost
 
-## Getting Started
+A responsive news reader built with Next.js 15, React 19, TypeScript, and Tailwind CSS 4. News comes from the public BBC News and Guardian RSS feeds. **No API keys, database, account, or environment variables are needed.**
 
-First, run the development server:
+## Run locally
 
-```bash
+Use Node.js 22 LTS or newer.
+
+```sh
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. If another project uses that port:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+npm run dev -- --port 3001
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## News system
 
-## Learn More
+- `lib/rss.ts` fetches the fixed publisher feed URLs in parallel with eight-second timeouts, checks responses, and parses RSS. It uses only feed-provided headlines, excerpts, images, dates, and original article links.
+- `lib/news-utils.ts` normalizes text/URLs, creates stable IDs, deduplicates URLs and headlines, and sorts newest first. Invalid dates and non-HTTPS article links are rejected.
+- `lib/news.ts` shares five-minute Next.js caches across the API and server-rendered pages. Topic requests are coalesced. If both publishers fail, a bounded in-memory last-good edition can be returned with a stale flag. This last-good memory does not survive a process restart or cross server instances. The UI clearly reports outages; it never substitutes fabricated news.
+- A failure in one source does not take down other sources or topics. No arbitrary upstream URL can be supplied by visitors.
+- Article pages show the publisher's feed excerpt and link to the full report. Older articles eventually leave RSS feeds and may no longer have a local preview; bookmarked stories retain a direct link to the publisher.
 
-To learn more about Next.js, take a look at the following resources:
+### JSON API
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`GET /api/news` returns all topics. `GET /api/news?topic=technology` returns one topic.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Topics: `world`, `politics`, `business`, `technology`, `science`, `sports`, `entertainment`.
 
-## Deploy on Vercel
+```json
+{
+  "articles": [],
+  "updatedAt": null,
+  "stale": false,
+  "unavailableSources": []
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Articles include `id`, `title`, `description`, `published_at`, `image_url`, `topic`, `slug`, `source`, and `source_url`. Unknown topics return 400. Total source unavailability without a saved edition returns 503. The response uses five-minute shared-cache headers.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# finality
+## Reading experience
+
+- Server-rendered latest and topic editions with search, source filtering, and incremental story loading.
+- Responsive navigation, light/dark themes, loading and error states, keyboard focus indicators, and reduced-motion support.
+- Bookmarks stored only in the current browser (up to 200). No login or tracking identity.
+- Publisher attribution and direct original-report links on cards and article pages.
+- A break room with Sudoku, hangman, math, solvable sliding puzzles, chess, and xkcd comics. Comics use a same-origin proxy to the official xkcd JSON endpoint; chess depends on ChessPuzzle's public daily endpoint and shows an outage state when unavailable.
+
+The previous Supabase/OpenAI ingestion jobs, fake bias ratings, database reaction counters, sample news fallback, ad injection, and unused stock endpoints have been removed. Any old deployed environment keys can be removed from hosting settings. The `supabase/` SQL migration is retained only as historical reference and is not used by this app.
+
+## Checks
+
+```sh
+npm test
+npm run lint
+npm run typecheck
+npm run build
+npm start
+```
+
+Tests cover feed normalization, unsafe URLs, dates, deduplication, image selection, partial/total outages, last-good behavior, and sliding-puzzle solvability.
+
+## Sources
+
+- [BBC feeds](https://support.bbc.co.uk/platform/feeds/NewsFeeds.htm)
+- [Guardian RSS feeds](https://www.theguardian.com/help/feeds)
+- [xkcd JSON interface](https://xkcd.com/json.html)
+
+Publisher content remains credited to its source. Feeds are externally maintained and their availability and contents can change.

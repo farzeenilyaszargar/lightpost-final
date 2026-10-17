@@ -1,51 +1,31 @@
 import type { Metadata } from "next";
+import { Instrument_Serif, Cabin } from "next/font/google";
 import "./globals.css";
-import { Gothic_A1, Instrument_Serif, Inria_Serif, Cabin } from 'next/font/google';
-import AnonIdProvider from "@/components/AnonIdProvider";
-
-// fonts -------------------------------------------------------------------------------
-
-const gothic = Gothic_A1({
-  subsets: ['latin'],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  variable: '--font-menu',
+const serif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-editorial",
 });
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-logo',
-});
-
-const inriaSerif = Inria_Serif({
-  subsets: ['latin'],
-  weight: ['300', '400', '700'],
-  variable: '--font-main',
-});
-
-const cabin = Cabin({
-  subsets: ['latin'],
-  variable: '--font-numbers',
-});
-
-
-
-// meta -------------------------------------------------------------------------------
+const sans = Cabin({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
-  title: "lightpost | get the unbiased news",
-  description: "get the unbiased news with ai and give your opinion to news",
+  title: { default: "Lightpost — A clearer view", template: "%s | Lightpost" },
+  description:
+    "A considered collection of the latest headlines from BBC News and The Guardian. Find your perspective, follow your curiosity.",
 };
-
-
-// root -------------------------------------------------------------------------------
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className=
-      {` ${gothic.variable} ${instrumentSerif.variable} ${inriaSerif.variable} ${cabin.variable}`}>
-      <body className="border-border bg-background text-string-primary">
-        <AnonIdProvider/>
-          {children}
+    <html
+      lang="en"
+      className={`${serif.variable} ${sans.variable}`}
+      suppressHydrationWarning
+    >
+      <body id="top">
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
+        {children}
       </body>
     </html>
   );

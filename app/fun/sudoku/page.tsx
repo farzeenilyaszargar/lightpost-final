@@ -19,7 +19,12 @@ type Grid = number[][];
 const copyGrid = (grid: Grid): Grid => grid.map((row) => [...row]);
 
 // Sudoku generator helpers (simple random backtracking)
-const isValid = (grid: Grid, row: number, col: number, num: number): boolean => {
+const isValid = (
+  grid: Grid,
+  row: number,
+  col: number,
+  num: number,
+): boolean => {
   for (let x = 0; x < 9; x++) {
     if (grid[row][x] === num || grid[x][col] === num) return false;
   }
@@ -28,24 +33,6 @@ const isValid = (grid: Grid, row: number, col: number, num: number): boolean => 
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       if (grid[startRow + i][startCol + j] === num) return false;
-    }
-  }
-  return true;
-};
-
-const solveGrid = (grid: Grid): boolean => {
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
-      if (grid[row][col] === 0) {
-        for (let num = 1; num <= 9; num++) {
-          if (isValid(grid, row, col, num)) {
-            grid[row][col] = num;
-            if (solveGrid(grid)) return true;
-            grid[row][col] = 0;
-          }
-        }
-        return false;
-      }
     }
   }
   return true;
@@ -72,7 +59,14 @@ const generateFullGrid = (): Grid => {
 };
 
 const removeNumbers = (grid: Grid, difficulty: string): Grid => {
-  const attempts = difficulty === "easy" ? 35 : difficulty === "medium" ? 45 : difficulty === "hard" ? 55 : 60;
+  const attempts =
+    difficulty === "easy"
+      ? 35
+      : difficulty === "medium"
+        ? 45
+        : difficulty === "hard"
+          ? 55
+          : 60;
   const puzzle = copyGrid(grid);
   let count = attempts;
   while (count > 0) {
@@ -90,7 +84,6 @@ const Sudoku: React.FC<SudokuProps> = ({
   title = "Sudoku",
   className = "",
   cellSize = 50,
-  showTitle = true,
   difficulty = "hard",
 }) => {
   const [solution, setSolution] = useState<Grid>([]);
@@ -99,11 +92,11 @@ const Sudoku: React.FC<SudokuProps> = ({
   const [hints, setHints] = useState(3);
   const [mistakes, setMistakes] = useState(0);
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
-  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null); // row, col of selected cell
+  const [, setSelectedCell] = useState<[number, number] | null>(null); // row, col of selected cell
   const [time, setTime] = useState(0);
-  const [difficultyLevel, setDifficultyLevel] = useState<"easy" | "medium" | "hard" | "evil">(difficulty);
-
-
+  const [difficultyLevel, setDifficultyLevel] = useState<
+    "easy" | "medium" | "hard" | "evil"
+  >(difficulty);
 
   useEffect(() => {
     const full = generateFullGrid();
@@ -119,12 +112,11 @@ const Sudoku: React.FC<SudokuProps> = ({
   useEffect(() => {
     setTime(0); // reset timer on new game
     const interval = setInterval(() => {
-      setTime(prev => prev + 1);
+      setTime((prev) => prev + 1);
     }, 1000);
 
     return () => clearInterval(interval); // cleanup when component unmounts or new game starts
   }, [puzzle]); // runs whenever a new puzzle is generated
-
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -155,7 +147,11 @@ const Sudoku: React.FC<SudokuProps> = ({
   const giveHint = () => {
     if (hints <= 0) return;
     const empties: [number, number][] = [];
-    grid.forEach((row, r) => row.forEach((val, c) => { if (val === 0) empties.push([r, c]); }));
+    grid.forEach((row, r) =>
+      row.forEach((val, c) => {
+        if (val === 0) empties.push([r, c]);
+      }),
+    );
     if (empties.length === 0) return;
     const [r, c] = empties[Math.floor(Math.random() * empties.length)];
     const newGrid = copyGrid(grid);
@@ -166,7 +162,7 @@ const Sudoku: React.FC<SudokuProps> = ({
   const startNewGame = () => {
     const full = generateFullGrid();
     const sol = copyGrid(full);
-    const puz = removeNumbers(full, difficulty);
+    const puz = removeNumbers(full, difficultyLevel);
     setSolution(sol);
     setPuzzle(puz);
     setGrid(copyGrid(puz));
@@ -177,13 +173,15 @@ const Sudoku: React.FC<SudokuProps> = ({
     setTime(0);
   };
 
-
   return (
     <div className={`flex flex-col items-center ${className}`}>
       <Header />
       <NavbarComp />
-      <div className=" w-5/6 flex flex-col justify-center items-center border-border border-l border-r h-full">
-        <div className="flex justify-between items-center w-115  m-4 mb-1">
+      <div
+        id="main"
+        className=" w-5/6 flex flex-col justify-center items-center border-border border-l border-r h-full"
+      >
+        <div className="flex justify-between items-center w-full max-w-115 m-4 px-3 mb-1">
           <p className="font-bold text-lg">{title}</p>
           <div className="text-sm">Time: {formatTime(time)}</div>
         </div>
@@ -206,15 +204,19 @@ const Sudoku: React.FC<SudokuProps> = ({
                   }}
                   className={`border text-center font-bold outline-none caret-string-primary
                   ${isClue ? "text-string-primary" : isCorrect ? "text-green-600" : isWrong ? "text-red-600" : "text-black"}
-                  ${((c + 1) % 3 === 0 && c !== 8) ? "border-r-3" : "border-r"}
-                  ${((r + 1) % 3 === 0 && r !== 8) ? "border-b-3" : "border-b"}
+                  ${(c + 1) % 3 === 0 && c !== 8 ? "border-r-3" : "border-r"}
+                  ${(r + 1) % 3 === 0 && r !== 8 ? "border-b-3" : "border-b"}
                   ${isSelectedNumber ? "bg-secondary-col" : "bg-background"}
                   border-border`}
-                  style={{ width: cellSize, height: cellSize, fontSize: cellSize / 2 }}
+                  style={{
+                    width: `min(${cellSize}px, 8vw)`,
+                    height: `min(${cellSize}px, 8vw)`,
+                    fontSize: `min(${cellSize / 2}px, 5vw)`,
+                  }}
                   disabled={isClue}
                 />
               );
-            })
+            }),
           )}
         </div>
         <div className="flex gap-2 m-3 mt-5 ">
@@ -229,8 +231,6 @@ const Sudoku: React.FC<SudokuProps> = ({
             </button>
           ))}
         </div>
-
-
 
         <div className="flex gap-3 m-3  justify-around items-center ">
           <button
@@ -247,14 +247,14 @@ const Sudoku: React.FC<SudokuProps> = ({
             🔄 New Game
           </button>
           <p>Mistakes: {mistakes}</p>
-
         </div>
       </div>
 
       <Footer />
-
     </div>
   );
 };
 
-export default Sudoku;
+export default function SudokuPage() {
+  return <Sudoku />;
+}

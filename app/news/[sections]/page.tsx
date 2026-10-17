@@ -1,89 +1,39 @@
-'use client';
-
-import Footer from "@/components/Footer";
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
 import Header from "@/components/Header";
-import NavbarComp from "@/components/NavBar";
-import { NewsItem } from "@/types/news";
-import { useState, useEffect } from "react";
-import DispPageTitle from "@/components/VisualTitle";
-import NewsGrid from "@/components/NewsComp";
-import { useParams } from "next/navigation";
-import { AdItem } from "@/types/ad";
-import { getFallbackNewsByTopic } from "@/lib/fallbackNews";
-import { supabase } from "@/lib/supabase";
-
-type MixedItem = NewsItem | AdItem;
-
-
-
-const adItems: AdItem[] = [
-  { id: "ad-1", image_url: "/ads/ad1.png", title: "Get Flights Cheap! 🎉", description: "superflights has the cheapest flights", links:"https://www.superflights.co.in/"} ,
-  { id: "ad-2", image_url: "/ads/ad2.png", title: "Try Out Surfers Today! 🎉", description: "superflights has the cheapest flights" , links:"https://www.surfers.co.in/"} ,
-  { id: "ad-3", image_url: "/ads/ad3.png", title: "Check Out Games", description: "", links:"/fun/" } ,
-  { id: "ad-4", image_url: "/ads/ad4.png", title: "Comics", description: "check out funny comics", links:"/fun/comics" } ,
-
-];
-
-
-export function injectAds(news: NewsItem[], ads: AdItem[]): MixedItem[] {
-  let result: MixedItem[] = [...news]; // explicitly MixedItem[]
-  ads.forEach((ad) => {
-    const randomIndex = Math.floor(Math.random() * (result.length + 1));
-    result.splice(randomIndex, 0, ad); // insert ad at random place
-  });
-  return result;
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
+import NewsExplorer from "@/components/NewsExplorer";
+import NewsSkeleton from "@/components/NewsSkeleton";
+import { getNews } from "@/lib/news";
+import { topics, topicLabels, type Topic } from "@/types/news";
+export const revalidate = 300;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ sections: string }>;
+}) {
+  const { sections } = await params;
+  return { title: topicLabels[sections as Topic] || "News" };
 }
-
-async function loadNews(topic: string) {
-  try {
-    const { data, error } = await supabase
-      .from('news')
-      .select('*')
-      .eq('topic', topic)
-      .order('published_at', { ascending: false });
-
-    if (error || !data || data.length === 0) {
-      if (error) console.error("Error fetching news:", error);
-      return getFallbackNewsByTopic(topic);
-    }
-    return data;
-  } catch (err) {
-    console.error("News fetch failed, using fallback:", err);
-    return getFallbackNewsByTopic(topic);
-  }
+async function TopicEdition({ topic }: { topic: Topic }) {
+  return <NewsExplorer feed={await getNews(topic)} topic={topic} />;
 }
-
-
-export default function BlogPost() {
-  const params = (useParams()) as { sections: string };
-  const [news, setNews] = useState<NewsItem[]>([]);
-  useEffect(() => {
-    async function fetchNews() {
-      const topic = params.sections; // get the topic from URL
-      const data = await loadNews(topic);
-      setNews(data);
-    }
-    fetchNews();
-  }, [params.sections]);
-
-
-
-const mixedItems = injectAds(news, adItems);
-
-
+export default async function TopicPage({
+  params,
+}: {
+  params: Promise<{ sections: string }>;
+}) {
+  const { sections } = await params;
+  if (!topics.includes(sections as Topic)) notFound();
   return (
-    <div className="flex flex-col items-center justify-around">
+    <>
       <Header />
-      <NavbarComp />
-      <DispPageTitle title={params.sections}/>
-      <div className="w-5/6 border-border border-l border-r p-5">
-        
-        <NewsGrid news={mixedItems}/>
-
-
-      </div>
+      <NavBar />
+      <Suspense fallback={<NewsSkeleton />}>
+        <TopicEdition topic={sections as Topic} />
+      </Suspense>
       <Footer />
-
-    </div>
+    </>
   );
 }
