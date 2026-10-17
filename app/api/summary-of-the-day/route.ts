@@ -10,7 +10,7 @@ const openai = new OpenAI({
 // Initialize Supabase
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function GET(req: Request) {
@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     // Fetch today's news from Supabase
     const { data: newsItems, error } = await supabase
       .from("news")
-      .select("title, description")
+      .select("title, description, summary")
       .order("rating", { ascending: false })
       .limit(20); 
 

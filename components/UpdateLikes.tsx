@@ -1,9 +1,9 @@
-import { supabase }  from "@/lib/fetchNews";
+import { supabase } from "@/lib/supabase";
 
 
 
 // function
-export async function updateReaction(articleId: number, type: "like" | "dislike") {
+export async function updateReaction(articleId: string, type: "like" | "dislike") {
   const col = type === "like" ? "likes" : "dislikes";
 
   // Ask Supabase to return a typed object

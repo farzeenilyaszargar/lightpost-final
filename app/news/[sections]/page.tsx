@@ -5,23 +5,12 @@ import Header from "@/components/Header";
 import NavbarComp from "@/components/NavBar";
 import { NewsItem } from "@/types/news";
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import { createClient } from '@supabase/supabase-js';
 import DispPageTitle from "@/components/VisualTitle";
 import NewsGrid from "@/components/NewsComp";
 import { useParams } from "next/navigation";
 import { AdItem } from "@/types/ad";
-
-type Props = {
-  params: { sections: string };
-};
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY!
-);
-
-
+import { getFallbackNewsByTopic } from "@/lib/fallbackNews";
+import { supabase } from "@/lib/supabase";
 
 type MixedItem = NewsItem | AdItem;
 
@@ -46,17 +35,22 @@ export function injectAds(news: NewsItem[], ads: AdItem[]): MixedItem[] {
 }
 
 async function loadNews(topic: string) {
-  const { data, error } = await supabase
-    .from('news')
-    .select('*')
-    .eq('topic', topic)
-    .order('published_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('news')
+      .select('*')
+      .eq('topic', topic)
+      .order('published_at', { ascending: false });
 
-  if (error) {
-    console.error("Error fetching news:", error);
-    return [];
+    if (error || !data || data.length === 0) {
+      if (error) console.error("Error fetching news:", error);
+      return getFallbackNewsByTopic(topic);
+    }
+    return data;
+  } catch (err) {
+    console.error("News fetch failed, using fallback:", err);
+    return getFallbackNewsByTopic(topic);
   }
-  return data || [];
 }
 
 

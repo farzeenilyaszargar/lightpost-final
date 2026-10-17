@@ -7,7 +7,7 @@ const parser = new Parser();
 // Supabase client using server-side keys
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 // OpenAI client using server-side key
@@ -99,12 +99,23 @@ async function fetchStockImage(query: string): Promise<string | null> {
 
 
 export async function fetchAndStoreNews() {
+  const allowedTopics = new Set([
+    "world",
+    "sports",
+    "politics",
+    "science",
+    "business",
+    "entertainment",
+  ]);
+
   for (const feedUrl of RSS_FEEDS) {
     const feed = await parser.parseURL(feedUrl);
 
 
-    for (const item of feed.items.slice(0, 50)) { // limit to 5 latest articles per feed
+    for (const item of feed.items.slice(0, 50)) { // limit to 50 latest articles per feed
       
+      if (!item.title) continue;
+      if (!item.guid && !item.link) continue;
 
       // Extract images from RSS item XML or fields
       function extractImageFromItem(item: any): string | null {
@@ -144,11 +155,9 @@ export async function fetchAndStoreNews() {
       if (!imageUrl && item.link) {
         imageUrl = await fetchOgImage(item.link);
         imageUrl = isValidImageUrl(imageUrl) ? imageUrl : null;
-
       }
-      else
-      {
-        continue;
+      if (imageUrl && !isValidImageUrl(imageUrl)) {
+        imageUrl = null;
       }
 
 
@@ -193,22 +202,44 @@ export async function fetchAndStoreNews() {
         console.error("Failed to parse GPT response as JSON:", overall);
       }
 
+      if (!data || data === null) {
+        continue;
+      }
 
+      const title =
+        typeof data.title === "string" && data.title.trim()
+          ? data.title.trim()
+          : item.title?.toString().trim();
+      const description =
+        typeof data.description === "string" && data.description.trim()
+          ? data.description.trim()
+          : (item.contentSnippet || item.description || "").toString().trim();
+      const summary =
+        typeof data.summary === "string" && data.summary.trim()
+          ? data.summary.trim()
+          : description;
+      if (!title || !description || !summary) {
+        continue;
+      }
 
+      const biasScoreRaw =
+        typeof data.bias_score === "number" ? data.bias_score : 0;
+      const biasScore = Math.max(0, Math.min(10, Math.round(biasScoreRaw)));
+      const bias_reason =
+        typeof data.bias_reason === "string" ? data.bias_reason : "";
 
+      const topicRaw =
+        typeof data.topic === "string" ? data.topic.toLowerCase().trim() : "";
+      const topic = allowedTopics.has(topicRaw) ? topicRaw : "world";
 
-      // const likes = await supabase.from("news").select("likes").eq("id", item.guid).single() ?? 0;
-      // const dislikes  = await supabase.from("news").select("dislikes").eq("id", item.guid).single() ?? 0;
-      const title = data.title;
-      const description = data.description;
-      const summary = data.summary;
-      const biasScore = data.bias_score;
-      const bias_reason = data.bias_reason;
-      const topic = data.topic;
-      // const rating = (data.rating*0.5)+(likes*0.3)+(dislikes*0.2);
-      const rating = data.rating;
-      const tags = data.tags;
-      const imgKeyword = data.keyword;
+      const rating =
+        typeof data.rating === "number" ? Math.round(data.rating) : 0;
+
+      const tags = Array.isArray(data.tags)
+        ? data.tags
+            .filter((t: any) => typeof t === "string" && t.trim())
+            .map((t: string) => t.trim().toLowerCase())
+        : [];
 
       // First try RSS tags
       
@@ -225,9 +256,11 @@ export async function fetchAndStoreNews() {
       }
 
       const slugTitle = slugify(title);
+      if (!slugTitle) continue;
       function isValidImageUrl(url: string | null): boolean {
-        return !!url && /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-
+        if (!url) return false;
+        if (!/^https?:\/\//i.test(url)) return false;
+        return true;
       }
 
 
@@ -278,13 +311,18 @@ export async function fetchAndStoreNews() {
 
 
       // Insert into Supabase
+      const publishedAt = item.pubDate ? new Date(item.pubDate) : new Date();
+      const publishedSafe = isNaN(publishedAt.getTime())
+        ? new Date()
+        : publishedAt;
+
       try {
         await supabase.from("news").upsert({
           id: articleId,
           title,
           description,
           summary,
-          published_at: item.pubDate ? new Date(item.pubDate) : new Date(),
+          published_at: publishedSafe,
           image_url: imageUrl,
           bias_score: biasScore || 0,
           bias_reason: bias_reason || "",

@@ -53,11 +53,19 @@ export async function runDailyDigest() {
     // Fetch your latest news from your database
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayISO = today.toISOString;
-    const { data: newsItems, error } = await supabase.from("news").select("title, description, published_at").gte("published_at", todayISO);
+    const todayISO = today.toISOString();
+    const { data: newsItems, error } = await supabase
+      .from("news")
+      .select("title, description, published_at")
+      .gte("published_at", todayISO);
 
     if (error) {
       console.error("Error fetching news:", error);
+      return;
+    }
+
+    if (!newsItems || newsItems.length === 0) {
+      console.warn("No news items available for daily summary.");
       return;
     }
 

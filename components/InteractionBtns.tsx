@@ -19,6 +19,7 @@ export default function InteractionBtns({
   comments,
   interactions,
 }: InteractionBtnsProps) {
+  const isFallback = newsId.startsWith("fallback-");
   const [choice, setChoice] = useState<"like" | "dislike" | "">("");
   const [likess, setLikes] = useState(likes);
   const [likeAnim, setLAnim] = useState(false);
@@ -37,6 +38,7 @@ export default function InteractionBtns({
   }, [newsId]);
 
   const updateLikesInDB = async (newVal: number) => {
+    if (isFallback) return;
     const { error } = await supabase
       .from("news")
       .update({ likes: newVal })
@@ -45,6 +47,7 @@ export default function InteractionBtns({
   };
 
   const updateDislikesInDB = async (newVal: number) => {
+    if (isFallback) return;
     const { error } = await supabase
       .from("news")
       .update({ dislikes: newVal })
@@ -53,7 +56,7 @@ export default function InteractionBtns({
   };
 
   const handleVote = async (vote: "like" | "dislike") => {
-    if (loading) return;
+    if (loading || isFallback) return;
     setLoading(true);
 
     // play animation if new vote
@@ -115,7 +118,7 @@ export default function InteractionBtns({
       <button
         className={`border-border rounded-2xl px-2 flex items-center gap-1 hover:scale-110 invert-[var(--my-invert)] ${choice === "like" ? "font-black" : ""}`}
         onClick={() => handleVote("like")}
-        disabled={loading}
+        disabled={loading || isFallback}
       >
         <Image
           src={
@@ -137,7 +140,7 @@ export default function InteractionBtns({
       <button
         className={`border-border rounded-2xl px-2 flex gap-1 items-center hover:scale-110 invert-[var(--my-invert)] ${choice === "dislike" ? "font-black" : ""}`}
         onClick={() => handleVote("dislike")}
-        disabled={loading}
+        disabled={loading || isFallback}
       >
         <Image
           src={

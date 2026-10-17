@@ -6,6 +6,7 @@ import { NewsItem } from "@/types/news";
 import { createClient } from "@supabase/supabase-js";
 import { JSX } from "react";
 import InteractionBtns from "@/components/InteractionBtns";
+import { getFallbackNewsBySlug } from "@/lib/fallbackNews";
 
 interface NewsPageProps {
   params: {
@@ -32,17 +33,22 @@ function parseBold(text: string): (string | JSX.Element)[] {
 }
 
 async function loadNews(slug: string): Promise<NewsItem | null> {
-  const { data, error } = await supabase
-    .from("news")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from("news")
+      .select("*")
+      .eq("slug", slug)
+      .single();
 
-  if (error) {
-    console.error("Error fetching news:", error);
-    return null;
+    if (error || !data) {
+      if (error) console.error("Error fetching news:", error);
+      return getFallbackNewsBySlug(slug);
+    }
+    return data;
+  } catch (err) {
+    console.error("News fetch failed, using fallback:", err);
+    return getFallbackNewsBySlug(slug);
   }
-  return data;
 }
 async function incrementViews(slug: string) {
   const { data, error } = await supabase
@@ -71,7 +77,9 @@ export default async function UniqueNews({ params }: NewsPageProps) {
   const news = await loadNews(params.slug);
 
   if (!news) return notFound();
-  incrementViews(news.slug);
+  if (!news.id.startsWith("fallback-")) {
+    void incrementViews(news.slug);
+  }
 
 
   return (

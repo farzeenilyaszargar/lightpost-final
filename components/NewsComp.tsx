@@ -42,6 +42,15 @@ export default function NewsGrid({ news }: { news: MixedItem[] }) {
                       unoptimized
                     />
                   )}
+                  {!item.image_url && (
+                    <Image
+                      src="/placeholder.png"
+                      alt="placeholder"
+                      width={300}
+                      height={200}
+                      className="rounded-lg"
+                    />
+                  )}
                   <h2 className="font-bold text-lg mt-2">{item.title}</h2>
                   <p className="text-sm text-string-secondary">{item.description}</p>
                 </Link>

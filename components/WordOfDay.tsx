@@ -1,11 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_KEY!
-);
+import { supabase } from "@/lib/supabase";
 
 export default function WordOfTheDay() {
   const [word, setWord] = useState<any>(null);
@@ -30,7 +25,10 @@ export default function WordOfTheDay() {
   if (loading) return <div className="p-4 text-gray-400">Loading word...</div>;
   if (!word) return <div className="p-4 text-gray-400">No word of the day available.</div>;
 
-  const pron = word.pronounciation.toLowerCase();
+  const pron =
+    typeof word.pronounciation === "string"
+      ? word.pronounciation.toLowerCase()
+      : "";
   return (
     <div className="p-5 border border-border rounded-2xl bg-background overflow-hidden ">
       <p className="text-2xl font-black font-main">{word.word}<span className="text-xs ml-2 text-string-secondary font-extralight">{word.part_of_speech}</span></p>

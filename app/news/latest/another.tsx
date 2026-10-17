@@ -3,23 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import React from "react";
 import { NewsItem } from "@/types/news";
 import NewsGridCols from "@/components/MainStyleCols";
 import SummaryOfTheDay from "@/components/SummaryDay";
 import WordOfTheDayyy from "@/components/WordOfDay";
-import { JSX } from "react";
 import InteractionBtns from "@/components/InteractionBtns";
+import { AdItem } from "@/types/ad";
 
-
-
-
-type AdItem= {
-  id:string;
-  image_url:string;
-  title:string;
-  description:string;
-}
 
 type MixedItem = NewsItem | AdItem;
 
@@ -59,17 +49,6 @@ export default function AnotherTry() {
     const columns: T[][] = Array.from({ length: numCols }, () => []);
     items.forEach((item, index) => columns[index % numCols].push(item));
     return columns;
-  }
-
-  function parseBold(text: string): (string | JSX.Element)[] {
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-
-    return parts.map((part, i) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
-        return <b className="text-string-primary" key={i}>{part.slice(2, -2)}</b>;
-      }
-      return part;
-    });
   }
 
   // Inject ads
