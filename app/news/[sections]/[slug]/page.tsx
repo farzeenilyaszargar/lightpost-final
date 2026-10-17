@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: Props) {
   const article = await getArticle(sections as Topic, slug);
   return {
     title: article
-      ? `${article.title} | Lightpost`
-      : "Story unavailable | Lightpost",
+      ? article.title
+      : "Story unavailable",
     description: article?.description,
   };
 }

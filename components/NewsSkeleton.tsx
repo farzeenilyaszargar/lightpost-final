@@ -1,20 +1,18 @@
-export default function NewsSkeleton() {
+import VisualTitle from "./VisualTitle";
+
+export default function NewsSkeleton({ title }: { title?: string }) {
   return (
-    <main
-      id="main"
-      aria-label="Loading news"
-      className="w-5/6 mx-auto border-l border-r border-border p-5 font-main min-h-[60vh]"
-    >
-      <p className="text-string-secondary text-sm mb-5">
-        Loading the latest news…
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-        {[1, 2, 3, 4].map((n) => (
-          <div
-            key={n}
-            className="border border-border rounded-2xl h-64 motion-safe:animate-pulse"
-          />
-        ))}
+    <main id="main" aria-label="Loading news" aria-busy="true" className="w-full flex flex-col items-center font-main">
+      {title && <VisualTitle title={title} />}
+      <div className="w-5/6 border-l border-r border-border p-5 min-h-[60vh]">
+        <p className="text-string-secondary text-sm mb-5" role="status">
+          Loading the latest news…
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5" aria-hidden="true">
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} className="border border-border rounded-2xl h-64 motion-safe:animate-pulse" />
+          ))}
+        </div>
       </div>
     </main>
   );

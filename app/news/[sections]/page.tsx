@@ -37,7 +37,7 @@ export default async function TopicPage({
     <>
       <Header />
       <NavBar />
-      <Suspense fallback={<NewsSkeleton />}>
+      <Suspense fallback={<NewsSkeleton title={topicLabels[sections as Topic]} />}>
         <TopicEdition topic={sections as Topic} />
       </Suspense>
       <Footer />

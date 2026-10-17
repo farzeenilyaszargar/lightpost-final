@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { isRouteActive } from "@/lib/navigation";
 
 export interface NavItem {
   name: string;
@@ -62,27 +64,26 @@ export const navList: NavItem[] = [
   },
 ];
 
-function isRouteActive(href: string, path: string) {
-  const norm = (s: string) => {
-    const t = "/" + s.replace(/^\/+/, "");
-    return t.length > 1 ? t.replace(/\/+$/, "") : "/";
-  };
-
-  const base = norm(href);
-  const curr = norm(path);
-
-  if (base === "/") return curr === "/";
-  return curr === base || curr.startsWith(base + "/");
-}
-
 export default function NavbarComp() {
   const path = usePathname();
+  const itemsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const items = itemsRef.current;
+    const active = items?.querySelector('[aria-current="page"]');
+    if (!items || !active || items.scrollWidth <= items.clientWidth) return;
+    const itemRect = active.getBoundingClientRect();
+    const containerRect = items.getBoundingClientRect();
+    items.scrollTo({
+      left: items.scrollLeft + itemRect.left - containerRect.left -
+        (items.clientWidth - itemRect.width) / 2,
+    });
+  }, [path]);
   return (
     <nav
       aria-label="Main navigation"
       className="w-full border-border border-b  justify-center flex sticky top-0 bg-background z-100 "
     >
-      <div className="w-5/6  flex md:justify-center items-center min-h-8 gap-5 overflow-x-auto border-l border-r border-border">
+      <div ref={itemsRef} className="navigation-items w-5/6 border-l border-r border-border">
         {navList.map((item: NavItem) => {
           const isActive = isRouteActive(item.link, path);
           return (
@@ -90,20 +91,21 @@ export default function NavbarComp() {
               prefetch={false}
               key={item.name}
               href={item.link}
-              className={`flex shrink-0 font-bold font-menu items-center ${isActive ? "" : ""}`}
+              aria-current={isActive ? "page" : undefined}
+              className="navigation-item font-menu"
             >
               <Image
-                src={`${isActive ? `${item.icons}` : `${item.inactiveIcons}`}`}
-                className="invert-[var(--reverse-invert)] mr-1"
-                alt="icon"
+                src={isActive ? item.icons : item.inactiveIcons}
+                className="navigation-icon invert-[var(--reverse-invert)]"
+                unoptimized
+                alt=""
                 width={25}
                 height={25}
               />
-              <p
-                className={` ${isActive ? `text-string-primary font-black ` : `text-string-secondary`}`}
-              >
-                {item.name}
-              </p>
+              <span className="navigation-label">
+                <span aria-hidden="true" className="navigation-reserve">{item.name}</span>
+                <span className={isActive ? "text-string-primary font-black" : "text-string-secondary font-bold"}>{item.name}</span>
+              </span>
             </Link>
           );
         })}

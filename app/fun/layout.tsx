@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import Navbar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 export const metadata = {
-  title: "The Amusements | Lightpost",
+  title: { default: "The Amusements", template: "%s | Lightpost" },
   description:
     "Sudoku, word games, arithmetic, sliding tiles, chess, and the funny papers. A Victorian newspaper puzzle page for a curious mind.",
 };
