@@ -1,68 +1,71 @@
 import Link from "next/link";
-import Header from "@/components/Header";
-
-import NavbarComp from "@/components/NavBar";
-
-export default function Home() {
+import { gameList } from "@/lib/games/core";
+import GameIllustration from "@/components/games/GameIllustration";
+import DailyProgress from "@/components/games/DailyProgress";
+export default function Amusements() {
   return (
-    <div className="flex flex-col items-center min-h-screen ">
-      <Header />
-      <NavbarComp />
-      <div
-        id="main"
-        className=" flex justify-center items-center h-full w-5/6  pt-10 pb-10 flex-col border-l border-r border-border font-main"
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 md:grid-rows-3 gap-5 h-full w-5/6 text-border">
-          <Link
-            href={"/fun/hangman"}
-            className=" md:row-span-1 md:col-span-1 border overflow-hidden rounded-2xl border-border flex justify-center items-center relative hover:scale-102"
-          >
-            <div className="absolute w-full h-full  z-0"></div>
-            <h1 className="font-black text-3xl p-5 z-10">Hangman</h1>
-          </Link>
-
-          <Link
-            href={"/fun/sudoku"}
-            className=" md:row-span-1 md:col-span-1 border overflow-hidden rounded-2xl border-border flex justify-center items-center  relative hover:scale-102"
-          >
-            <div className="absolute w-full h-full z-0"></div>
-            <h1 className="font-black text-3xl p-5 z-10">Sudoku</h1>
-          </Link>
-          <Link
-            href={"/fun/comic"}
-            className=" md:row-span-2 md:col-span-2 border overflow-hidden rounded-2xl border-border flex justify-center items-center relative hover:scale-102"
-          >
-            <div className="absolute w-full h-full  z-0"></div>
-            <h1 className="font-black text-3xl p-5 z-10">Comics</h1>
-          </Link>
-
-          <Link
-            href={"/fun/math"}
-            className="md:row-span-1 md:col-span-2 border overflow-hidden rounded-2xl border-border flex justify-center items-center relative hover:scale-102"
-          >
-            <div className="absolute w-full h-full  z-0"></div>
-            <h1 className="font-black text-3xl p-5 z-10">Maths Puzzles</h1>
-          </Link>
-
-          <Link
-            href={"/fun/chess"}
-            className=" md:row-span-1 md:col-span-3 border overflow-hidden rounded-2xl border-border flex justify-center items-center relative hover:scale-102"
-          >
-            <div className="absolute w-full h-full  z-0"></div>
-            <h1 className="font-black text-3xl p-5 z-10">
-              Chess Puzzle Of The Day
-            </h1>
-          </Link>
-
-          <Link
-            href={"/fun/sliding"}
-            className=" md:row-span-1 md:col-span-1 border overflow-hidden rounded-2xl border-border flex justify-center items-center relative hover:scale-102"
-          >
-            <div className="absolute w-full h-full z-0"></div>
-            <h1 className="font-black text-3xl p-5 z-10">Sliding Boxes</h1>
-          </Link>
-        </div>
+    <section className="amusements-index">
+      <div className="amusement-folio">
+        <span>THE LIGHTPOST SUPPLEMENT</span>
+        <span>FOR THE INQUISITIVE MIND</span>
       </div>
-    </div>
+      <header className="amusement-masthead">
+        <span className="amusement-ornament" aria-hidden="true">
+          ❦
+        </span>
+        <h1>The Amusements</h1>
+        <p>
+          A little wit. A little wisdom. A welcome pause between the headlines.
+        </p>
+        <div className="amusement-rule">
+          <span>PUZZLES, PASTIMES & THE FUNNY PAPERS</span>
+        </div>
+      </header>
+      <div className="amusement-intro">
+        <p>
+          <span className="amusement-dropcap">D</span>ear reader, lay aside the
+          affairs of the world for a moment. Here are a few small challenges for
+          a lively mind. Take your time; the news will be here when you return.
+        </p>
+        <DailyProgress />
+      </div>
+      <div className="amusement-cards">
+        {gameList.map((game, i) => (
+          <Link
+            className="amusement-card"
+            key={game.id}
+            href={`/fun/${game.id}`}
+          >
+            <div className="amusement-card-caption">
+              <span>No. {String(i + 1).padStart(2, "0")}</span>
+              <span>{game.kind}</span>
+            </div>
+            <GameIllustration kind={game.mark} />
+            <div className="amusement-card-copy">
+              <h2>{game.name}</h2>
+              <p className="amusement-deck">{game.deck}</p>
+              <p>{game.detail}</p>
+              <div className="amusement-card-bottom">
+                <span>{game.time}</span>
+                <strong>
+                  {game.id === "comic" ? "Read the papers" : "Take a seat"}{" "}
+                  <span aria-hidden="true">↗</span>
+                </strong>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+      <div className="amusement-colophon">
+        <span aria-hidden="true">✧</span>
+        <p>
+          Five daily puzzles. No accounts, no entry fee.
+          <br />
+          The games work without an external service; comics have an in-house
+          alternative.
+        </p>
+        <Link href="/">Return to the dispatches →</Link>
+      </div>
+    </section>
   );
 }

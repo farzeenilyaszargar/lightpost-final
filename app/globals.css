@@ -228,3 +228,1106 @@ select:focus-visible {
     animation: none;
   }
 }
+
+/* The Amusements: the same ink, paper, rules, and serif type as the newspaper. */
+.amusements-frame {
+  width: 83.333333%;
+  margin-inline: auto;
+  border-left: 1px solid var(--borders);
+  border-right: 1px solid var(--borders);
+  font-family: var(--font-main), Georgia, serif;
+  min-height: 75vh;
+}
+.amusements-index {
+  padding: 22px 28px 35px;
+}
+.amusement-folio {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-family: var(--font-menu), sans-serif;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid var(--borders);
+  padding-bottom: 11px;
+}
+.amusement-masthead {
+  text-align: center;
+  padding: 20px 0 0;
+}
+.amusement-ornament {
+  font-size: 26px;
+  line-height: 1;
+}
+.amusement-masthead h1 {
+  font-family: var(--font-logo), Georgia, serif;
+  font-size: clamp(42px, 6.4vw, 78px);
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 5px 0 10px;
+}
+.amusement-masthead > p {
+  font-size: 15px;
+  color: var(--text-second);
+  font-style: italic;
+  line-height: 1.7;
+}
+.amusement-rule {
+  border-top: 3px double var(--borders);
+  border-bottom: 1px solid var(--borders);
+  padding: 10px;
+  margin-top: 23px;
+  font-family: var(--font-menu), sans-serif;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+}
+.amusement-intro {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 40px;
+  padding: 25px 0;
+  border-bottom: 1px solid var(--borders);
+  align-items: center;
+}
+.amusement-intro > p {
+  font-size: 15px;
+  line-height: 1.8;
+  max-width: 650px;
+}
+.amusement-dropcap {
+  float: left;
+  font-family: var(--font-logo), Georgia, serif;
+  font-size: 58px;
+  line-height: 0.9;
+  margin: 6px 7px 0 0;
+}
+.amusement-progress {
+  border-left: 1px solid var(--borders);
+  padding-left: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.amusement-progress > span {
+  font-weight: 700;
+  font-size: 16px;
+}
+.amusement-progress > div {
+  display: flex;
+  gap: 14px;
+  font-size: 21px;
+  line-height: 1;
+}
+.amusement-progress > div > span {
+  color: var(--text-second);
+}
+.amusement-progress > div > .complete {
+  color: var(--text);
+  font-weight: 700;
+}
+.amusement-progress > small {
+  font-family: var(--font-numbers), sans-serif;
+  font-size: 10px;
+  color: var(--text-second);
+}
+.amusement-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 27px;
+}
+.amusement-card {
+  border: 1px solid var(--borders);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+.amusement-card:hover {
+  box-shadow: 3px 3px 0 var(--borders);
+  transform: translate(-1px, -1px);
+}
+.amusement-card-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--borders);
+  font-size: 10px;
+  color: var(--text-second);
+}
+.game-engraving {
+  height: 172px;
+  margin: 14px 14px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    color-mix(in srgb, var(--text) 3%, transparent) 5px,
+    color-mix(in srgb, var(--text) 3%, transparent) 6px
+  );
+  border-bottom: 1px solid var(--borders);
+  overflow: hidden;
+}
+.amusement-card-copy {
+  padding: 17px 17px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.amusement-card h2 {
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.amusement-deck {
+  font-style: italic;
+  font-size: 14px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.amusement-card-copy > p:not(.amusement-deck) {
+  font-size: 12px;
+  color: var(--text-second);
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+.amusement-card-bottom {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid var(--borders);
+  padding-top: 12px;
+  font-size: 11px;
+}
+.amusement-card-bottom > span {
+  color: var(--text-second);
+}
+.amusement-card-bottom strong {
+  font-weight: 400;
+}
+.amusement-card-bottom strong span {
+  margin-left: 7px;
+}
+.amusement-colophon {
+  text-align: center;
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.amusement-colophon > span {
+  font-size: 28px;
+}
+.amusement-colophon > p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-second);
+}
+.amusement-colophon > a {
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.mini-sudoku {
+  display: grid;
+  grid-template-columns: repeat(9, 14px);
+  border-top: 2px solid var(--borders);
+  border-left: 2px solid var(--borders);
+  transform: rotate(-6deg);
+  background: var(--background);
+}
+.mini-sudoku > span {
+  height: 14px;
+  border-right: 1px solid var(--borders);
+  border-bottom: 1px solid var(--borders);
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.3;
+}
+.mini-word {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 15px;
+}
+.mini-word > span {
+  font-family: var(--font-logo), serif;
+  font-size: 20px;
+  letter-spacing: 3px;
+}
+.mini-word > strong {
+  font-size: 27px;
+  border-bottom: 1px solid var(--borders);
+  padding-bottom: 4px;
+  letter-spacing: 2px;
+}
+.mini-word small {
+  font-style: italic;
+  font-size: 12px;
+}
+.mini-math {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transform: rotate(-5deg);
+}
+.mini-math > span {
+  font-size: 38px;
+}
+.mini-math i {
+  border: 1px solid var(--borders);
+  padding: 0 10px;
+}
+.mini-math small {
+  font-size: 23px;
+}
+.mini-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 35px);
+  gap: 4px;
+  transform: rotate(7deg);
+}
+.mini-tiles > span {
+  display: grid;
+  place-items: center;
+  height: 35px;
+  border: 1px solid var(--borders);
+  border-radius: 3px;
+  background: var(--background);
+  font-size: 22px;
+}
+.mini-tiles > .empty {
+  border-style: dashed;
+  background: transparent;
+}
+.mini-chess {
+  text-align: center;
+}
+.mini-chess > span {
+  font-size: 95px;
+  line-height: 1;
+  font-family: Georgia, serif;
+}
+.mini-chess > div {
+  font-size: 22px;
+  letter-spacing: 8px;
+}
+.engraving-comic svg {
+  height: 155px;
+  width: 100%;
+  max-width: 260px;
+}
+.puzzle-page {
+  padding: 25px 28px 40px;
+}
+.amusement-back {
+  font-size: 12px;
+  color: var(--text-second);
+  display: inline-block;
+  margin-bottom: 25px;
+}
+.amusement-back:hover {
+  text-decoration: underline;
+}
+.puzzle-title {
+  border-bottom: 3px double var(--borders);
+  padding-bottom: 23px;
+}
+.amusement-kicker {
+  font-family: var(--font-menu), sans-serif;
+  letter-spacing: 1.7px;
+  font-size: 9px;
+  color: var(--text-second);
+  line-height: 1.7;
+}
+.puzzle-title h1 {
+  font-family: var(--font-logo), Georgia, serif;
+  font-size: clamp(34px, 4.5vw, 55px);
+  font-weight: 400;
+  margin: 8px 0;
+}
+.puzzle-title > p:last-child {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-second);
+  max-width: 650px;
+}
+.puzzle-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.5fr) minmax(190px, 1fr);
+  gap: 32px;
+  margin-top: 23px;
+}
+.puzzle-playing {
+  min-width: 0;
+}
+.puzzle-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--borders);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+.puzzle-edition {
+  font-size: 13px;
+  font-style: italic;
+  white-space: nowrap;
+}
+.puzzle-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.puzzle-controls > button {
+  font-size: 11px;
+  border-bottom: 1px solid var(--borders);
+  padding: 4px 0;
+}
+.puzzle-difficulty {
+  font-size: 11px;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.puzzle-difficulty select {
+  background: var(--background);
+  border: 1px solid var(--borders);
+  border-radius: 20px;
+  font-size: 11px;
+  padding: 4px 7px;
+}
+.puzzle-stats {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-numbers), sans-serif;
+  font-size: 11px;
+  color: var(--text-second);
+  margin: 0 auto 18px;
+  max-width: 470px;
+}
+.puzzle-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 23px;
+}
+.puzzle-buttons > button {
+  border: 1px solid var(--borders);
+  border-radius: 20px;
+  padding: 7px 15px;
+  font-size: 12px;
+  line-height: 1.4;
+  background: var(--background);
+  color: var(--text);
+}
+.puzzle-buttons > button:not(:disabled):hover {
+  background: var(--text);
+  color: var(--background);
+}
+.puzzle-buttons > .ink-button {
+  background: var(--text);
+  color: var(--background);
+}
+.puzzle-message {
+  font-size: 13px;
+  color: var(--text-second);
+  text-align: center;
+  line-height: 1.8;
+  padding: 18px 10px;
+  min-height: 66px;
+  max-width: 550px;
+  margin: auto;
+}
+.puzzle-message.success {
+  color: var(--text);
+  font-weight: 700;
+  border-top: 3px double var(--borders);
+  margin-top: 20px;
+  font-size: 17px;
+}
+.puzzle-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 180px;
+  font-style: italic;
+  color: var(--text-second);
+  font-size: 14px;
+  text-align: center;
+}
+.puzzle-caption {
+  font-family: var(--font-numbers), sans-serif;
+  font-size: 10px;
+  text-align: center;
+  margin: 15px 0;
+  color: var(--text-second);
+  line-height: 1.6;
+}
+.puzzle-hint {
+  border: 1px dashed var(--borders);
+  border-radius: 12px;
+  padding: 12px 15px;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 20px auto 0;
+  max-width: 470px;
+}
+.puzzle-notes {
+  border-left: 1px solid var(--borders);
+  padding-left: 24px;
+}
+.puzzle-notes h2 {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0 0 13px;
+}
+.puzzle-notes ol {
+  padding-left: 17px;
+  list-style: decimal;
+  margin: 0;
+}
+.puzzle-notes li {
+  font-size: 12px;
+  color: var(--text-second);
+  line-height: 1.85;
+  padding-left: 4px;
+  margin-bottom: 12px;
+}
+.puzzle-more {
+  border-top: 1px solid var(--borders);
+  padding-top: 20px;
+  margin-top: 25px;
+}
+.puzzle-more > a {
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+}
+.puzzle-more > a:hover {
+  text-decoration: underline;
+}
+.puzzle-more > a > span {
+  color: var(--text-second);
+}
+.puzzle-storage-note {
+  font-size: 10px;
+  color: var(--text-second);
+  line-height: 1.8;
+  margin-top: 23px;
+  border-top: 1px solid var(--borders);
+  padding-top: 16px;
+}
+.sudoku-board {
+  width: min(100%, 450px);
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  border: 2px solid var(--borders);
+  margin: auto;
+}
+.sudoku-board > button {
+  aspect-ratio: 1;
+  border-right: 1px solid var(--borders);
+  border-bottom: 1px solid var(--borders);
+  font-family: var(--font-numbers), sans-serif;
+  font-size: clamp(17px, 2vw, 25px);
+  color: var(--text-second);
+  position: relative;
+  outline-offset: -4px;
+}
+.sudoku-board > button:nth-child(9n) {
+  border-right: 0;
+}
+.sudoku-board > button:nth-last-child(-n + 9) {
+  border-bottom: 0;
+}
+.sudoku-board > .box-right {
+  border-right-width: 3px;
+}
+.sudoku-board > .box-bottom {
+  border-bottom-width: 3px;
+}
+.sudoku-board > .given {
+  font-weight: 700;
+  color: var(--text);
+}
+.sudoku-board > .selected {
+  background: var(--second-col);
+  color: var(--text);
+}
+.sudoku-board > .selected:after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--text);
+  pointer-events: none;
+}
+.sudoku-board > .incorrect {
+  box-shadow: inset 0 -4px var(--text);
+  text-decoration: underline wavy;
+  text-underline-offset: 4px;
+}
+.sudoku-keypad {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 5px;
+  width: min(100%, 450px);
+  margin: 18px auto 0;
+}
+.sudoku-keypad > button {
+  border: 1px solid var(--borders);
+  border-radius: 5px;
+  min-height: 37px;
+  font-family: var(--font-numbers), sans-serif;
+  font-size: 17px;
+}
+.sudoku-keypad > button:hover {
+  background: var(--second-col);
+}
+.word-drawing {
+  width: 170px;
+  height: 150px;
+  margin: auto;
+}
+.word-drawing svg {
+  width: 100%;
+  height: 100%;
+}
+.word-clue {
+  max-width: 420px;
+  text-align: center;
+  font-size: 17px;
+  line-height: 1.65;
+  margin: 17px auto;
+  font-style: italic;
+}
+.word-spaces {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 25px 0;
+}
+.word-spaces > span {
+  width: clamp(21px, 3vw, 36px);
+  height: 42px;
+  border-bottom: 2px solid var(--borders);
+  display: grid;
+  place-items: center;
+  text-transform: uppercase;
+  font-size: 28px;
+  line-height: 1;
+}
+.word-spaces > .revealed {
+  color: var(--text-second);
+}
+.letter-keyboard {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 7px;
+  width: min(100%, 435px);
+  margin: 27px auto 0;
+}
+.letter-keyboard > button {
+  height: 38px;
+  text-transform: uppercase;
+  border: 1px solid var(--borders);
+  border-radius: 5px;
+  font-size: 17px;
+}
+.letter-keyboard > button:not(:disabled):hover {
+  background: var(--text);
+  color: var(--background);
+}
+.letter-keyboard > .correct-letter {
+  background: var(--text);
+  color: var(--background);
+  opacity: 1;
+}
+.letter-keyboard > .wrong-letter {
+  text-decoration: line-through;
+  opacity: 0.35;
+}
+.arithmetic-sheet {
+  border-top: 1px solid var(--borders);
+  border-bottom: 1px solid var(--borders);
+  max-width: 510px;
+  margin: auto;
+}
+.arithmetic-row {
+  display: grid;
+  grid-template-columns: 25px repeat(5, minmax(35px, 1fr)) 20px;
+  gap: 9px;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--borders);
+  font-family: var(--font-numbers), sans-serif;
+  text-align: center;
+  font-size: 24px;
+}
+.arithmetic-row:last-child {
+  border-bottom: 0;
+}
+.arithmetic-row input,
+.arithmetic-row select {
+  width: 100%;
+  min-width: 0;
+  height: 43px;
+  font-family: var(--font-numbers), sans-serif;
+  border: 1px solid var(--borders);
+  border-radius: 5px;
+  background: var(--background);
+  text-align: center;
+  font-size: 23px;
+  padding: 3px;
+  color: var(--text);
+}
+.arithmetic-row .equation-number,
+.arithmetic-row .equation-feedback {
+  font-size: 11px;
+  color: var(--text-second);
+}
+.arithmetic-row.answer-incorrect input,
+.arithmetic-row.answer-incorrect select {
+  border-style: dashed;
+  border-bottom-width: 3px;
+}
+.arithmetic-row.answer-correct input,
+.arithmetic-row.answer-correct select {
+  font-weight: 700;
+}
+.arithmetic-row.answer-correct .equation-feedback {
+  font-size: 20px;
+  color: var(--text);
+}
+.sliding-board {
+  width: min(100%, 325px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 9px;
+  border: 2px solid var(--borders);
+  margin: auto;
+  background: color-mix(in srgb, var(--text) 5%, var(--background));
+}
+.sliding-board > button {
+  aspect-ratio: 1;
+  background: var(--background);
+  border: 1px solid var(--borders);
+  box-shadow: 2px 2px 0 var(--borders);
+  border-radius: 5px;
+  font-family: var(--font-logo), Georgia, serif;
+  font-size: 52px;
+}
+.sliding-board > button:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.sliding-board > button:not(:disabled):hover {
+  background: var(--second-col);
+}
+.sliding-board > .sliding-empty {
+  aspect-ratio: 1;
+  border: 1px dashed var(--borders);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--text) 8%, var(--background));
+}
+.sliding-board .tile-in-place > span {
+  border-bottom: 1px solid var(--borders);
+}
+.chess-board {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  width: min(100%, 450px);
+  border: 2px solid var(--borders);
+  margin: auto;
+}
+.chess-board > button {
+  aspect-ratio: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  outline-offset: -4px;
+  color: #242820;
+}
+.chess-board > button:disabled {
+  opacity: 1;
+}
+.chess-light {
+  background: #eeeae2;
+}
+.chess-dark {
+  background: #b5b5a7;
+}
+.chess-board > button.selected {
+  box-shadow: inset 0 0 0 3px #242820;
+}
+.chess-piece {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(28px, 4.2vw, 48px);
+  line-height: 1;
+}
+.piece-w {
+  color: #fffdf5;
+  -webkit-text-stroke: 1px #242820;
+}
+.piece-b {
+  color: #242820;
+}
+.chess-board small {
+  position: absolute;
+  font-size: 8px;
+  font-family: var(--font-numbers), sans-serif;
+  color: #33392f;
+}
+.chess-rank {
+  top: 2px;
+  left: 3px;
+}
+.chess-file {
+  bottom: 1px;
+  right: 3px;
+}
+.legal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #242820;
+  opacity: 0.3;
+}
+.house-comic {
+  text-align: center;
+}
+.house-comic > h2,
+.xkcd-comic > h2 {
+  font-family: var(--font-logo), Georgia, serif;
+  font-size: 33px;
+  font-weight: 400;
+  margin: 10px 0 22px;
+}
+.comic-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 670px;
+  margin: auto;
+}
+.comic-drawing {
+  border: 1px solid var(--borders);
+  padding: 18px 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.comic-drawing > p {
+  font-family: var(--font-menu), sans-serif;
+  font-size: 12px;
+  line-height: 1.8;
+  min-height: 75px;
+  max-width: 240px;
+}
+.comic-drawing > svg {
+  width: 100%;
+  max-width: 240px;
+}
+.comic-caption {
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 18px auto;
+  max-width: 450px;
+}
+.xkcd-comic {
+  background: #fff;
+  color: #242820;
+  text-align: center;
+  padding: 20px;
+  border: 1px solid var(--borders);
+}
+.xkcd-comic > img {
+  height: auto;
+  max-width: 100%;
+  width: auto;
+  max-height: 65vh;
+  margin: 0 auto 20px;
+}
+.xkcd-comic > p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.xkcd-comic > a {
+  display: inline-block;
+  font-size: 12px;
+  margin-top: 20px;
+  text-decoration: underline;
+}
+.xkcd-comic .amusement-kicker {
+  color: #666;
+}
+@media (max-width: 1100px) {
+  .amusement-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .puzzle-layout {
+    grid-template-columns: minmax(0, 2fr) minmax(170px, 1fr);
+    gap: 23px;
+  }
+  .puzzle-notes {
+    padding-left: 20px;
+  }
+  .puzzle-page {
+    padding: 23px;
+  }
+  .puzzle-controls {
+    gap: 9px;
+  }
+  .puzzle-difficulty {
+    width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .amusements-index {
+    padding: 18px;
+  }
+  .amusement-folio {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .amusement-masthead > p {
+    font-size: 13px;
+  }
+  .amusement-rule {
+    font-size: 7px;
+    letter-spacing: 1.5px;
+    padding: 9px 2px;
+  }
+  .amusement-intro {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 22px 0;
+  }
+  .amusement-progress {
+    border-left: 0;
+    border-top: 1px solid var(--borders);
+    padding: 17px 0 0;
+  }
+  .amusement-progress > div {
+    gap: 18px;
+  }
+  .amusement-cards {
+    gap: 17px;
+  }
+  .amusement-card h2 {
+    font-size: 23px;
+  }
+  .amusement-card-copy {
+    padding: 14px;
+  }
+  .amusement-card-caption {
+    font-size: 9px;
+    padding: 10px;
+  }
+  .game-engraving {
+    height: 145px;
+    margin: 10px 10px 0;
+  }
+  .mini-word > strong {
+    font-size: 19px;
+    letter-spacing: 0;
+  }
+  .mini-word > small {
+    font-size: 10px;
+  }
+  .mini-math > span {
+    font-size: 28px;
+  }
+  .amusement-card-bottom {
+    flex-direction: column;
+    gap: 7px;
+  }
+  .puzzle-page {
+    padding: 20px 17px;
+  }
+  .puzzle-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .puzzle-notes {
+    border-left: 0;
+    border-top: 3px double var(--borders);
+    padding: 23px 0 0;
+  }
+  .puzzle-more {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 25px;
+  }
+  .puzzle-more > h2 {
+    grid-column: 1/-1;
+  }
+  .puzzle-notes li {
+    font-size: 13px;
+  }
+  .puzzle-toolbar {
+    gap: 10px;
+  }
+  .sudoku-board > button {
+    font-size: 22px;
+  }
+  .chess-piece {
+    font-size: clamp(24px, 6vw, 42px);
+  }
+  .puzzle-stats {
+    font-size: 10px;
+  }
+  .puzzle-title > p:last-child {
+    font-size: 13px;
+  }
+  .arithmetic-row {
+    gap: 5px;
+    font-size: 21px;
+    grid-template-columns: 20px repeat(5, minmax(27px, 1fr)) 15px;
+  }
+  .arithmetic-row input,
+  .arithmetic-row select {
+    font-size: 20px;
+  }
+  .puzzle-buttons {
+    gap: 8px;
+  }
+  .puzzle-buttons > button {
+    padding: 7px 12px;
+    font-size: 11px;
+  }
+  .word-spaces {
+    gap: 5px;
+  }
+  .word-spaces > span {
+    font-size: 25px;
+    width: 25px;
+  }
+  .comic-panels {
+    gap: 8px;
+  }
+  .comic-drawing {
+    padding: 12px 8px 0;
+  }
+  .comic-drawing > p {
+    font-size: 11px;
+    min-height: 100px;
+  }
+  .house-comic > h2 {
+    font-size: 29px;
+  }
+}
+@media (max-width: 460px) {
+  .amusement-cards {
+    grid-template-columns: 1fr;
+  }
+  .amusement-card-bottom {
+    flex-direction: row;
+  }
+  .game-engraving {
+    height: 160px;
+  }
+  .amusement-folio > span:last-child {
+    display: none;
+  }
+  .amusement-masthead h1 {
+    font-size: 43px;
+  }
+  .amusement-intro > p {
+    font-size: 14px;
+  }
+  .puzzle-edition {
+    width: 100%;
+  }
+  .puzzle-toolbar {
+    align-items: flex-start;
+  }
+  .puzzle-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .puzzle-difficulty {
+    width: auto;
+  }
+  .sudoku-keypad {
+    gap: 3px;
+  }
+  .sudoku-keypad > button {
+    min-height: 33px;
+    font-size: 14px;
+  }
+  .sudoku-board > button {
+    font-size: 19px;
+  }
+  .word-spaces {
+    gap: 4px;
+  }
+  .word-spaces > span {
+    width: 20px;
+    font-size: 22px;
+  }
+  .letter-keyboard {
+    gap: 5px;
+  }
+  .letter-keyboard > button {
+    font-size: 15px;
+    height: 34px;
+  }
+  .arithmetic-row {
+    font-size: 18px;
+    gap: 4px;
+    grid-template-columns: 16px repeat(5, minmax(23px, 1fr)) 13px;
+  }
+  .arithmetic-row input,
+  .arithmetic-row select {
+    height: 37px;
+    font-size: 18px;
+    padding: 1px;
+  }
+  .comic-panels {
+    grid-template-columns: 1fr;
+  }
+  .comic-drawing > p {
+    min-height: 0;
+  }
+  .comic-drawing svg {
+    max-width: 210px;
+  }
+  .sliding-board > button {
+    font-size: 43px;
+  }
+  .amusement-back {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .amusement-card {
+    transition: none;
+  }
+}

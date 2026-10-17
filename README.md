@@ -50,7 +50,10 @@ Articles include `id`, `title`, `description`, `published_at`, `image_url`, `top
 - Publisher attribution and direct original-report links on cards and article pages.
 - The original LIGHTPOST masthead, four font families, monochrome themes, bordered page frame, four-column home layout, rounded cards, introductory banner, and scrolling section titles.
 - A word-of-the-day sidebar using a small local vocabulary list; no AI request or database is involved.
-- The original Fun page with Sudoku, hangman, math, solvable sliding puzzles, chess, and xkcd comics. Comics use a same-origin proxy to the official xkcd JSON endpoint; chess depends on ChessPuzzle's public daily endpoint and shows an outage state when unavailable.
+- A Victorian Amusements supplement with five playable daily games and the Funny Papers. The original masthead, fonts, colours, and news layout are preserved.
+- Sudoku puzzles have exactly one solution and three difficulty settings. Word games use a curated clue bank. Arithmetic accepts every valid operator and checks only when requested. Sliding tiles support legal moves, arrow keys, and undo. Chess uses `chess.js` to validate moves and local mate-in-one positions, with no external chess API.
+- Daily puzzles are deterministic for an edition date (Asia/Kolkata). Daily progress and completion marks stay in this browser; free-play rounds do not overwrite the daily game. Browser storage is optional.
+- Original Lightpost comic panels open immediately. Optional xkcd comics use the existing same-origin proxy, with timeouts and a local alternative when the provider or image fails.
 
 The previous Supabase/OpenAI ingestion jobs, fake bias ratings, database reaction counters, sample news fallback, ad injection, and unused stock endpoints have been removed. Any old deployed environment keys can be removed from hosting settings. The `supabase/` SQL migration is retained only as historical reference and is not used by this app.
 
@@ -64,7 +67,7 @@ npm run build
 npm start
 ```
 
-Tests cover feed normalization, unsafe URLs, dates, deduplication, image selection, partial/total outages, last-good behavior, and sliding-puzzle solvability.
+Tests cover feed normalization, unsafe URLs, deduplication, source outages, daily seeds and edition boundaries, unique Sudoku solutions, word-game terminal states, arithmetic validation, every chess problem’s mating move, and sliding-puzzle solvability/undo.
 
 ## Sources
 

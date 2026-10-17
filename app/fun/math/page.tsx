@@ -1,289 +1,170 @@
 "use client";
-
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import NavbarComp from "@/components/NavBar";
-import React, { useEffect, useRef, useState } from "react";
-
-export type Op = "+" | "-" | "*" | "/";
-
-export interface Equation {
-  id: string;
-  a: number;
-  b: number;
-  op: Op;
-  c: number;
-  blank: "a" | "b" | "op" | "c"; // which part is missing
-}
-
-export interface MathPuzzleProps {
-  title?: string;
-  className?: string;
-  count?: number; // how many equations to generate
-  showTitle?: boolean;
-  cellSize?: number; // input size
-  hints?: number; // number of hints available
-}
-
-// helpers
-function randInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function pick<T>(arr: T[]) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function generateEquation(id: number): Equation {
-  const ops: Op[] = ["+", "-", "*", "/"];
-  while (true) {
-    const op = pick(ops);
-    let a = randInt(1, 12);
-    let b = randInt(1, 12);
-    let c: number;
-
-    if (op === "+") c = a + b;
-    else if (op === "-") {
-      if (a < b) [a, b] = [b, a];
-      c = a - b;
-    } else if (op === "*") c = a * b;
-    else {
-      b = randInt(1, 12);
-      c = randInt(1, 12);
-      a = b * c;
-    }
-
-    const blank: Equation["blank"] = pick(["a", "b", "op", "c"]);
-    return { id: String(id), a, b, op, c, blank };
+import GameFrame, {
+  PuzzleControls,
+  PuzzleLoading,
+} from "@/components/games/GameFrame";
+import { useDailyGame, useMarkComplete } from "@/components/games/useDailyGame";
+import {
+  makeArithmetic,
+  validArithmetic,
+  validAnswer,
+  equationAnswer,
+  arithmeticDone,
+  type Equation,
+} from "@/lib/games/arithmetic";
+export default function Arithmetic() {
+  const game = useDailyGame("arithmetic", makeArithmetic, validArithmetic);
+  const s = game.state,
+    done = !!s && arithmeticDone(s);
+  useMarkComplete("math", done, game.round === 0, game.day);
+  function answer(index: number, value: string) {
+    if (done) return;
+    game.update((old) => ({
+      ...old,
+      answers: old.answers.map((a, i) => (i === index ? value : a)),
+      checked: old.checked.map((v, i) => (i === index ? false : v)),
+    }));
   }
-}
-
-function MathPuzzle({
-  title = "Math Puzzle",
-  className = "",
-  count = 6,
-  showTitle = true,
-  hints = 3,
-}: MathPuzzleProps) {
-  const [equations, setEquations] = useState<Equation[]>([]);
-  useEffect(() => {
-    setEquations(
-      Array.from({ length: count }, (_, i) => generateEquation(i + 1)),
-    );
-  }, [count]);
-
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [correct, setCorrect] = useState<Record<string, boolean>>({});
-  const [wrongCount, setWrongCount] = useState(0);
-  const [seconds, setSeconds] = useState(0);
-  const [hintsLeft, setHintsLeft] = useState(hints);
-
-  const focusedRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    const timer = setInterval(() => setSeconds((s) => s + 1), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const solutionFor = (eq: Equation) => {
-    if (eq.blank === "a") return String(eq.a);
-    if (eq.blank === "b") return String(eq.b);
-    if (eq.blank === "c") return String(eq.c);
-    return eq.op;
-  };
-
-  const validate = (eq: Equation, value: string) =>
-    value.trim() === solutionFor(eq);
-
-  const handleChange = (id: string, eq: Equation, value: string) => {
-    setAnswers((prevAnswers) => {
-      const prevVal = prevAnswers[id] ?? "";
-      if (prevVal === value) return prevAnswers;
-
-      const nowCorrect = validate(eq, value);
-
-      setCorrect((prevCorrect) => ({ ...prevCorrect, [id]: nowCorrect }));
-
-      setWrongCount((prevWrong) => {
-        const prevCorrect = correct[id] ?? false;
-        if (!nowCorrect && prevVal.trim() !== value.trim() && !prevCorrect) {
-          return prevWrong + 1;
-        }
-        return prevWrong;
-      });
-
-      return { ...prevAnswers, [id]: value };
-    });
-  };
-
-  const handleHint = () => {
-    if (hintsLeft <= 0) return;
-    for (const eq of equations) {
-      const id = eq.id;
-      const cur = answers[id] ?? "";
-      if (!validate(eq, cur)) {
-        const sol = solutionFor(eq);
-        setAnswers((prev) => ({ ...prev, [id]: sol }));
-        setCorrect((prev) => ({ ...prev, [id]: true }));
-        setHintsLeft((h) => h - 1);
-        return;
-      }
-    }
-  };
-
-  const solvedAll =
-    equations.length > 0 &&
-    equations.every((eq) => validate(eq, answers[eq.id] ?? ""));
-
-  const onPadPress = (ch: string) => {
-    const el = focusedRef.current;
-    if (!el) return;
-    const id = el.dataset.eqid!;
-    const eq = equations.find((e) => e.id === id)!;
-
-    let nextVal = ch;
-    if (eq.blank === "a" || eq.blank === "b" || eq.blank === "c") {
-      const prev = answers[id] ?? "";
-      nextVal = (prev + ch).slice(0, 4);
-    }
-
-    handleChange(id, eq, nextVal);
-  };
-
-  const inputStyle =
-    "w-12 sm:w-20 h-10 text-center border rounded px-2 py-1 text-lg font-medium";
-  const opStyle =
-    "w-10 sm:w-16 h-10 text-center border rounded px-2 py-1 text-lg font-medium";
-
-  return (
-    <div className="flex flex-col items-center min-h-screen">
-      <Header />
-      <NavbarComp />
-      <div
-        id="main"
-        className="border-l border-r border-border w-5/6 h-full flex justify-center items-center"
+  function hint() {
+    if (!s || done || s.hints >= 3) return;
+    const i = s.questions.findIndex((q, i) => !validAnswer(q, s.answers[i]));
+    if (i < 0) return;
+    game.update((old) => ({
+      ...old,
+      answers: old.answers.map((a, j) =>
+        j === i ? equationAnswer(old.questions[i]) : a,
+      ),
+      checked: old.checked.map((a, j) => (j === i ? true : a)),
+      hints: old.hints + 1,
+    }));
+  }
+  function part(q: Equation, index: number, key: Equation["blank"]) {
+    return q.blank !== key ? (
+      <span>{q[key]}</span>
+    ) : key === "op" ? (
+      <select
+        disabled={done}
+        value={s!.answers[index]}
+        onChange={(e) => answer(index, e.target.value)}
+        aria-label={`Answer to equation ${index + 1}`}
       >
-        <div
-          className={`w-full max-w-2xl border h-fit p-3 sm:p-6 ${className}`}
-        >
-          {showTitle && (
-            <div className="flex items-baseline justify-between mb-4">
-              <h2 className="text-2xl font-semibold">{title}</h2>
-              <div className="text-sm text-gray-600">
-                ⏱️ {Math.floor(seconds / 60)}:
-                {String(seconds % 60).padStart(2, "0")} • ❌ {wrongCount} •
-                Hints {hintsLeft}
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {equations.map((eq) => {
-              const id = eq.id;
-              const val = answers[id] ?? "";
-              const isCorrect = correct[id] ?? false;
-              const showCorrect = val !== "" && isCorrect;
-              const showWrong = val !== "" && !isCorrect;
-
-              const getInput = (
-                blank: "a" | "b" | "op" | "c",
-                display: string,
-                style: string,
-              ) =>
-                eq.blank === blank ? (
-                  <input
-                    data-eqid={id}
-                    ref={(el) => {
-                      if (el && document.activeElement === el)
-                        focusedRef.current = el;
-                    }}
-                    value={val}
-                    onFocus={(e) => {
-                      focusedRef.current = e.currentTarget;
-                    }}
-                    onChange={(e) => handleChange(id, eq, e.target.value)}
-                    className={`${style} ${showCorrect ? "border-green-600 text-green-700" : showWrong ? "border-red-600 text-red-600" : "border-gray-300"}`}
-                  />
-                ) : (
-                  <div className={`${style} flex items-center justify-center`}>
-                    {display}
-                  </div>
-                );
-
-              return (
-                <div key={id} className="flex items-center gap-1 sm:gap-3">
-                  <div className="w-6 text-right text-sm text-gray-600">
-                    {id}.
-                  </div>
-                  {getInput("a", String(eq.a), inputStyle)}
-                  {getInput("op", eq.op, opStyle)}
-                  {getInput("b", String(eq.b), inputStyle)}
-                  <div className="text-lg font-medium">=</div>
-                  {getInput("c", String(eq.c), inputStyle)}
-                  <div className="ml-1 text-sm text-gray-500">
-                    {isCorrect ? "✓" : ""}
-                  </div>
-                </div>
-              );
-            })}
+        <option value="">?</option>
+        {["+", "−", "×", "÷"].map((op) => (
+          <option key={op}>{op}</option>
+        ))}
+      </select>
+    ) : (
+      <input
+        aria-label={`Answer to equation ${index + 1}`}
+        autoComplete="off"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        maxLength={3}
+        placeholder="?"
+        value={s!.answers[index]}
+        disabled={done}
+        onChange={(e) => {
+          if (/^\d*$/.test(e.target.value)) answer(index, e.target.value);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter")
+            game.update((old) => ({
+              ...old,
+              checked: old.questions.map(() => true),
+              checks: old.checks + 1,
+            }));
+        }}
+      />
+    );
+  }
+  const correct =
+    s?.questions.filter((q, i) => s.checked[i] && validAnswer(q, s.answers[i]))
+      .length || 0;
+  return (
+    <GameFrame
+      id="math"
+      title="The Reckoning"
+      description="The accounts are almost in order. Supply the figures the clerk has omitted."
+      rules={[
+        "Fill each missing number. In the final equation, choose the missing sign.",
+        "Press Check answers when ready. Typing a number does not count as a mistake.",
+        "A tick means the equation is correct. Any mathematically valid sign is accepted.",
+        "Three hints are available. A new sheet resets answers and hints without reloading the page.",
+      ]}
+      controls={<PuzzleControls {...game} />}
+    >
+      {!s ? (
+        <PuzzleLoading />
+      ) : (
+        <>
+          <div className="puzzle-stats">
+            <span>{correct} of 6 correct</span>
+            <span>{3 - s.hints} hints remaining</span>
           </div>
-
-          <div className="flex gap-3 mt-6">
-            <button
-              onClick={handleHint}
-              disabled={hintsLeft <= 0}
-              className="px-2 py-1 bg-black text-white rounded"
-            >
-              Hint ({hintsLeft})
-            </button>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-2 py-1 border rounded"
-            >
-              New
-            </button>
-          </div>
-
-          {/* Mobile keypad */}
-          <div className="mt-6 md:hidden grid grid-cols-5 gap-2">
-            {[
-              "1",
-              "2",
-              "3",
-              "4",
-              "5",
-              "6",
-              "7",
-              "8",
-              "9",
-              "+",
-              "-",
-              "*",
-              "/",
-              "0",
-            ].map((ch) => (
-              <button
-                key={ch}
-                onClick={() => onPadPress(ch)}
-                className="p-3 bg-gray-200 rounded text-lg"
+          <div className="arithmetic-sheet">
+            {s.questions.map((q, i) => (
+              <div
+                className={`arithmetic-row ${s.checked[i] ? (validAnswer(q, s.answers[i]) ? "answer-correct" : "answer-incorrect") : ""}`}
+                key={`${game.key}:${i}`}
               >
-                {ch}
-              </button>
+                <span className="equation-number">
+                  {String(i + 1).padStart(2, "0")}.
+                </span>
+                {part(q, i, "a")}
+                {part(q, i, "op")}
+                {part(q, i, "b")}
+                <span>=</span>
+                {part(q, i, "c")}
+                <span
+                  className="equation-feedback"
+                  aria-label={
+                    s.checked[i]
+                      ? validAnswer(q, s.answers[i])
+                        ? "Correct"
+                        : "Try again"
+                      : "Not checked"
+                  }
+                >
+                  {s.checked[i]
+                    ? validAnswer(q, s.answers[i])
+                      ? "✓"
+                      : "?"
+                    : "·"}
+                </span>
+              </div>
             ))}
           </div>
-
-          {solvedAll && (
-            <div className="mt-4 text-green-700 font-semibold">
-              All correct — nice!
-            </div>
-          )}
-        </div>
-      </div>
-      <Footer />
-    </div>
+          <div className="puzzle-buttons">
+            <button
+              className="ink-button"
+              disabled={done}
+              onClick={() =>
+                game.update((old) => ({
+                  ...old,
+                  checked: old.questions.map(() => true),
+                  checks: old.checks + 1,
+                }))
+              }
+            >
+              Check answers
+            </button>
+            <button disabled={done || s.hints >= 3} onClick={hint}>
+              A hint ({3 - s.hints})
+            </button>
+            <button onClick={game.reset}>Start over</button>
+          </div>
+          <p
+            className={`puzzle-message ${done ? "success" : ""}`}
+            role="status"
+          >
+            {done
+              ? "The books balance beautifully. All six are correct!"
+              : s.checks > 0
+                ? `${correct} of 6 correct. Review the equations marked with a question mark.`
+                : "Pencil in your answers, then check the sheet."}
+          </p>
+        </>
+      )}
+    </GameFrame>
   );
-}
-
-export default function MathPage() {
-  return <MathPuzzle />;
 }
