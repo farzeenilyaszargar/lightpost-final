@@ -7,6 +7,13 @@ import { topicLabels } from "@/types/news";
 import StoryActions from "./StoryActions";
 import StoryImage from "./StoryImage";
 import VisualTitle from "./VisualTitle";
+function storySnippet(description: string) {
+  const text = description.replace(/\s*Continue reading\.\.\.\s*$/i, "").trim();
+  if (text.length <= 160) return text;
+  const preview = text.slice(0, 160).replace(/\s+\S*$/, "").replace(/[.,;:!?]+$/, "");
+  return `${preview}…`;
+}
+
 function storyUrl(article: NewsItem) {
   return `/news/${article.topic}/${article.slug}`;
 }
@@ -38,8 +45,8 @@ export function StoryCard({
         {!featured && (
           <h2 className="font-semibold text-xl mt-2">{article.title}</h2>
         )}
-        <p className="text-sm mt-2 text-string-secondary leading-relaxed">
-          {article.description}
+        <p className="text-sm mt-2 text-string-secondary leading-relaxed line-clamp-3">
+          {storySnippet(article.description)}
         </p>
       </Link>
       <StoryActions article={article} />
