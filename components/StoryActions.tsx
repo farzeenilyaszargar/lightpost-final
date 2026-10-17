@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
+import Icon from "./Icon";
 import BookmarkButton from "./BookmarkButton";
 import type { NewsItem } from "@/types/news";
 export default function StoryActions({ article }: { article: NewsItem }) {
@@ -32,14 +32,8 @@ export default function StoryActions({ article }: { article: NewsItem }) {
       >
         {article.source} ↗
       </a>
-      <button onClick={share} aria-label="Share story" className="p-1">
-        <Image
-          src="/icons/sharee.png"
-          alt=""
-          width={15}
-          height={15}
-          className="invert-[var(--my-invert)]"
-        />
+      <button onClick={share} aria-label="Share story" className="p-1 text-string-secondary hover:text-string-primary">
+        <Icon name="share" size={17} />
       </button>
       {message && (
         <span role="status" className="text-xs">

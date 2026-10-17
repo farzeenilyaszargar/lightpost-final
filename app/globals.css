@@ -1390,3 +1390,7 @@ h1, h2 { overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: reduce) {
   .section-title-track { justify-content: flex-start; }
 }
+
+.navigation-item:hover, .navigation-item:focus-visible { color: var(--text); }
+.navigation-item[aria-current="page"] .navigation-icon { stroke-width: 1.9; }
+.masthead-actions svg { flex-shrink: 0; }

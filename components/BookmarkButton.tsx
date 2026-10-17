@@ -1,5 +1,6 @@
 "use client";
 import { useState, useSyncExternalStore } from "react";
+import Icon from "./Icon";
 import type { NewsItem } from "@/types/news";
 import {
   readBookmarks,
@@ -44,17 +45,7 @@ export default function BookmarkButton({ article }: { article: NewsItem }) {
             : "Save for later"
       }
     >
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        fill={saved ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="1.5"
-        aria-hidden="true"
-      >
-        <path d="M6 3h12v18l-6-4-6 4z" />
-      </svg>
+      <Icon name="bookmark" size={18} fill={saved ? "currentColor" : "none"} />
       {error && <span>Unable to save</span>}
     </button>
   );

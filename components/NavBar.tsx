@@ -3,64 +3,55 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import Icon, { type IconName } from "./Icon";
 import { isRouteActive } from "@/lib/navigation";
 
 export interface NavItem {
   name: string;
   link: string;
-  icons: string;
-  inactiveIcons: string;
+  icon: IconName;
 }
 
 export const navList: NavItem[] = [
   {
     name: "Latest",
     link: "/",
-    icons: "/icons/recents.svg",
-    inactiveIcons: "/icons/inactive-recents.svg",
+    icon: "newspaper",
   },
   {
     name: "Politics",
     link: "/news/politics",
-    icons: "/icons/politics.svg",
-    inactiveIcons: "/icons/inactive-politics.svg",
+    icon: "parliament",
   },
   {
     name: "Markets",
     link: "/news/business",
-    icons: "/icons/money.png",
-    inactiveIcons: "/icons/inactive-money.png",
+    icon: "markets",
   },
   {
     name: "Tech",
     link: "/news/technology",
-    icons: "/icons/tech.svg",
-    inactiveIcons: "/icons/inactive-tech.svg",
+    icon: "chip",
   },
   {
     name: "Science",
     link: "/news/science",
-    icons: "/icons/science.svg",
-    inactiveIcons: "/icons/inactive-science.svg",
+    icon: "flask",
   },
   {
     name: "Sports",
     link: "/news/sports",
-    icons: "/icons/sports.svg",
-    inactiveIcons: "/icons/inactive-sports.svg",
+    icon: "trophy",
   },
   {
     name: "Culture",
     link: "/news/entertainment",
-    icons: "/icons/culture.png",
-    inactiveIcons: "/icons/inactive-culture.png",
+    icon: "theatre",
   },
   {
     name: "Fun",
     link: "/fun",
-    icons: "/icons/inactive-games.svg",
-    inactiveIcons: "/icons/inactive-games.svg",
+    icon: "dice",
   },
 ];
 
@@ -92,16 +83,9 @@ export default function NavbarComp() {
               key={item.name}
               href={item.link}
               aria-current={isActive ? "page" : undefined}
-              className="navigation-item font-menu"
+              className={`navigation-item font-menu ${isActive ? "text-string-primary" : "text-string-secondary"}`}
             >
-              <Image
-                src={isActive ? item.icons : item.inactiveIcons}
-                className="navigation-icon invert-[var(--reverse-invert)]"
-                unoptimized
-                alt=""
-                width={25}
-                height={25}
-              />
+              <Icon name={item.icon} size={25} className="navigation-icon" />
               <span className="navigation-label">
                 <span aria-hidden="true" className="navigation-reserve">{item.name}</span>
                 <span className={isActive ? "text-string-primary font-black" : "text-string-secondary font-bold"}>{item.name}</span>

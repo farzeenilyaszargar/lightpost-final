@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Icon from "./Icon";
 import { useState } from "react";
 
 export default function Hero() {
@@ -31,13 +32,7 @@ export default function Hero() {
             onClick={() => setVis(!visible)}
             className=" flex justify-end items-center w-1/3 focus:outline-none"
           >
-            <Image
-              src={"/icons/cross.png"}
-              alt="x"
-              width={25}
-              height={25}
-              className="md:w-7 w-5 mr-10 invert-[var(--reverse-invert)]"
-            />
+            <Icon name="close" size={25} className="md:w-7 w-5 mr-10" />
           </button>
         </div>
       </div>

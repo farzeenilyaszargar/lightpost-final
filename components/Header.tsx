@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import Image from "next/image";
+import Icon from "./Icon";
 import Link from "next/link";
 import { isDarkTheme, serverTheme, subscribeTheme, toggleTheme } from "@/lib/theme";
 
@@ -27,11 +27,11 @@ export default function Header() {
         <Link href="/" aria-label="Lightpost home" className="masthead-logo font-logo">LIGHTPOST</Link>
         <div className="masthead-actions">
           <button onClick={toggleTheme} aria-label="Dark theme" aria-pressed={darkMode} title="Toggle light or dark theme">
-            <Image src="/icons/moon.png" alt="" width={25} height={25} unoptimized className="theme-moon invert-[var(--my-invert)]" />
-            <Image src="/icons/sun.png" alt="" width={25} height={25} unoptimized className="theme-sun invert-[var(--my-invert)]" />
+            <Icon name="moon" size={25} className="theme-moon" />
+            <Icon name="sun" size={25} className="theme-sun" />
           </button>
           <Link href="/saved" prefetch={false} aria-label="Saved stories" title="Saved stories">
-            <Image src="/icons/profile.png" alt="" width={35} height={35} unoptimized className="invert-[var(--my-invert)]" />
+            <Icon name="bookmark" size={25} />
           </Link>
         </div>
       </div>

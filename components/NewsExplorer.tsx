@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Icon from "./Icon";
 import { useNewsPage } from "./useNewsPage";
 import type { NewsPage, NewsItem, Topic } from "@/types/news";
 import { topicLabels } from "@/types/news";
@@ -178,7 +179,7 @@ export default function NewsExplorer({
               disabled={pending || loadingMore}
               className="px-1 text-lg"
             >
-              ↻
+              <Icon name="refresh" size={18} />
             </button>
           </div>
         </div>
