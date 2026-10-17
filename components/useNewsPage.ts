@@ -3,11 +3,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { NewsPage, Topic } from "@/types/news";
 import { NEWS_PAGE_SIZE } from "@/lib/news-page";
 export function useNewsPage(initial: NewsPage, topic?: Topic) {
-  const [query, setQuery] = useState(""),
-    [source, setSource] = useState("all");
-  const term = query.trim().toLowerCase(),
-    filterKey = `${term}|${source}`;
-  const [result, setResult] = useState({ page: initial, key: "|all" }),
+  const [source, setSource] = useState("all");
+  const filterKey = source;
+  const [result, setResult] = useState({ page: initial, key: "all" }),
     [pending, setPending] = useState(false),
     [loadingMore, setLoadingMore] = useState(false),
     [error, setError] = useState("");
@@ -27,7 +25,6 @@ export function useNewsPage(initial: NewsPage, topic?: Topic) {
           offset: String(offset),
         });
         if (topic) params.set("topic", topic);
-        if (term) params.set("q", term);
         if (source !== "all") params.set("source", source);
         const response = await fetch(`/api/news?${params}`, {
           signal: AbortSignal.any([
@@ -69,7 +66,7 @@ export function useNewsPage(initial: NewsPage, topic?: Topic) {
         }
       }
     },
-    [topic, term, source, filterKey],
+    [topic, source, filterKey],
   );
   useEffect(() => {
     if (first.current) {
@@ -79,11 +76,8 @@ export function useNewsPage(initial: NewsPage, topic?: Topic) {
     active.current?.abort();
     setPending(true);
     setLoadingMore(false);
-    const timer = window.setTimeout(() => {
-      void load();
-    }, 250);
+    void load();
     return () => {
-      window.clearTimeout(timer);
       active.current?.abort();
     };
   }, [load]);
@@ -101,8 +95,6 @@ export function useNewsPage(initial: NewsPage, topic?: Topic) {
   return {
     feed: result.page,
     articles: result.key === filterKey ? result.page.articles : [],
-    query,
-    setQuery,
     source,
     setSource,
     pending,

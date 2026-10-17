@@ -101,8 +101,6 @@ export default function NewsExplorer({
   const {
     feed,
     articles,
-    query,
-    setQuery,
     source,
     setSource,
     pending,
@@ -111,7 +109,7 @@ export default function NewsExplorer({
     refresh,
     more,
   } = useNewsPage(initialFeed, topic);
-  const filtering = !!query.trim() || source !== "all";
+  const filtering = source !== "all";
   const top = articles[0];
   const rest = articles.slice(1);
   const word =
@@ -147,18 +145,6 @@ export default function NewsExplorer({
             )}
           </div>
           <div className="flex gap-3 items-center flex-wrap">
-            <label>
-              <span className="sr-only">Search headlines</span>
-              <input
-                maxLength={160}
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                }}
-                placeholder="Search headlines…"
-                className="bg-background border border-border rounded-full px-3 py-1.5 w-40"
-              />
-            </label>
             <label>
               <span className="sr-only">Filter by source</span>
               <select
@@ -216,14 +202,13 @@ export default function NewsExplorer({
             </h2>
             <p className="text-string-secondary">
               {filtering
-                ? "Try a different keyword or source."
+                ? "Try a different source."
                 : "Please try again in a few minutes."}
             </p>
             {filtering && (
               <button
                 className="border border-border rounded-full px-4 py-2 mt-4"
                 onClick={() => {
-                  setQuery("");
                   setSource("all");
                 }}
               >
