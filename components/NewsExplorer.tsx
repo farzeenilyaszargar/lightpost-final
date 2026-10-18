@@ -42,6 +42,7 @@ export function StoryCard({
             title={article.title}
             topic={article.topic}
             eager={featured}
+            sizes={featured ? "(max-width: 1023px) 83vw, 42vw" : undefined}
           />
         </div>
         {!featured && (
@@ -121,6 +122,10 @@ export default function NewsExplorer({
       Math.floor(Date.parse(feed.updatedAt || "2026-01-01") / 86400000) %
         words.length
     ];
+  const remaining = articles.slice(1);
+  const sideStories = (column: number) => remaining
+    .filter((_, index) => index % 4 === column)
+    .map(article => <StoryCard key={article.id} article={article} />);
   return (
     <main id="main" className="w-full flex flex-col items-center">
       <h1 className="sr-only">{topic ? topicLabels[topic] : "Latest news"}</h1>
@@ -155,9 +160,20 @@ export default function NewsExplorer({
             <h2 className="text-xl font-bold mb-3">No news available right now</h2>
             <p className="text-string-secondary">Please try again in a few minutes.</p>
           </div>
-        ) : (
+        ) : topic ? (
           <div className="news-columns p-5">
-            {!topic && (
+            {articles.map(article => <StoryCard key={article.id} article={article} />)}
+          </div>
+        ) : (
+          <div className="frontpage-layout p-5">
+            <div className="frontpage-center">
+              <StoryCard article={articles[0]} featured />
+              <div className="news-columns frontpage-followups mt-5">
+                {remaining.filter((_, index) => index % 4 === 1 || index % 4 === 2)
+                  .map(article => <StoryCard key={article.id} article={article} />)}
+              </div>
+            </div>
+            <div className="frontpage-side frontpage-left">
               <aside className="p-3 border border-border rounded-2xl">
                 <h2 className="text-2xl mb-2 font-bold">What&apos;s Happening</h2>
                 <p className="text-sm text-string-secondary leading-relaxed">
@@ -165,11 +181,9 @@ export default function NewsExplorer({
                   perspectives and follow each story to its original source.
                 </p>
               </aside>
-            )}
-            {articles.map((article, index) => (
-              <StoryCard key={article.id} article={article} featured={!topic && index === 0} />
-            ))}
-            {!topic && (
+              {sideStories(0)}
+            </div>
+            <div className="frontpage-side frontpage-right">
               <aside className="p-5 border border-border rounded-2xl">
                 <h2 className="text-xs text-string-secondary mb-2">Word of the Day</h2>
                 <p className="text-2xl font-black">
@@ -179,7 +193,8 @@ export default function NewsExplorer({
                 <p className="text-sm text-string-secondary font-extralight">{word.pronunciation}</p>
                 <p className="text-sm text-string-secondary mt-2">{word.definition}</p>
               </aside>
-            )}
+              {sideStories(3)}
+            </div>
           </div>
         )}
         {feed.nextOffset !== null && articles.length > 0 && (

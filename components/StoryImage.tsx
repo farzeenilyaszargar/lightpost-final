@@ -7,11 +7,13 @@ export default function StoryImage({
   title,
   topic,
   eager = false,
+  sizes,
 }: {
   src: string | null;
   title: string;
   topic: string;
   eager?: boolean;
+  sizes?: string;
 }) {
   const [failedSource, setFailedSource] = useState<string | null>(null);
   return src && src !== failedSource ? (
@@ -21,9 +23,9 @@ export default function StoryImage({
       width={800}
       height={533}
       sizes={
-        eager
+        sizes || (eager
           ? "(max-width: 767px) 83vw, 42vw"
-          : "(max-width: 639px) 83vw, (max-width: 767px) 42vw, 21vw"
+          : "(max-width: 639px) 83vw, (max-width: 1023px) 42vw, 21vw")
       }
       priority={eager}
       fetchPriority={eager ? "high" : "auto"}

@@ -1388,3 +1388,19 @@ h1, h2 { overflow-wrap: anywhere; }
   .market-price-track { flex-wrap: wrap; flex-shrink: 1; }
   .market-price-track[aria-hidden="true"] { display: none; }
 }
+
+/* The front-page lead occupies the two middle newspaper columns. */
+.frontpage-layout { display: grid; gap: 20px; align-items: start; }
+.frontpage-center, .frontpage-side { min-width: 0; }
+.frontpage-side { display: flex; flex-direction: column; gap: 20px; }
+@media (min-width: 640px) {
+  .frontpage-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .frontpage-center { grid-column: 1 / -1; }
+  .frontpage-followups { column-count: 2; }
+}
+@media (min-width: 1024px) {
+  .frontpage-layout { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .frontpage-center { grid-column: 2 / span 2; grid-row: 1; }
+  .frontpage-left { grid-column: 1; grid-row: 1; }
+  .frontpage-right { grid-column: 4; grid-row: 1; }
+}
