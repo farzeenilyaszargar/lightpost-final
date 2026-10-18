@@ -25,9 +25,6 @@ export default function GameFrame({
   const [showRules, setShowRules] = useState(false);
   return (
     <section className="puzzle-page" data-game={id}>
-      <Link prefetch={false} href="/fun" className="amusement-back">
-        ← Return to the Amusements
-      </Link>
       <header className="puzzle-title">
         <button className="puzzle-rules-toggle" aria-expanded={showRules} aria-controls="puzzle-instructions" onClick={() => setShowRules(value => !value)}>{showRules ? "Close rules" : "Rules & more"}</button>
         <p className="amusement-kicker">THE LIGHTPOST • AMUSEMENTS</p>
