@@ -5,6 +5,7 @@ import type { NewsPage, NewsItem, Topic } from "@/types/news";
 import { topicLabels } from "@/types/news";
 import StoryActions from "./StoryActions";
 import StoryImage from "./StoryImage";
+import WordOfDay from "./WordOfDay";
 import dynamic from "next/dynamic";
 const MarketWatch = dynamic(() => import("./MarketWatch"), {
   loading: () => <p className="m-5 text-sm text-string-secondary" role="status">Loading the Market Ledger…</p>,
@@ -56,51 +57,6 @@ export function StoryCard({
     </article>
   );
 }
-const words = [
-  {
-    word: "Perspective",
-    pronunciation: "/per-spek-tiv/",
-    definition: "A particular way of looking at or understanding something.",
-    part: "noun",
-  },
-  {
-    word: "Discern",
-    pronunciation: "/di-surn/",
-    definition: "To recognise something clearly through careful thought.",
-    part: "verb",
-  },
-  {
-    word: "Nuance",
-    pronunciation: "/noo-ahns/",
-    definition:
-      "A small but meaningful difference in expression or understanding.",
-    part: "noun",
-  },
-  {
-    word: "Inquisitive",
-    pronunciation: "/in-kwiz-i-tiv/",
-    definition: "Curious and eager to learn more.",
-    part: "adjective",
-  },
-  {
-    word: "Lucid",
-    pronunciation: "/loo-sid/",
-    definition: "Expressed clearly and easily understood.",
-    part: "adjective",
-  },
-  {
-    word: "Resilient",
-    pronunciation: "/ri-zil-yunt/",
-    definition: "Able to recover after difficulty or change.",
-    part: "adjective",
-  },
-  {
-    word: "Serendipity",
-    pronunciation: "/seh-ren-dip-i-tee/",
-    definition: "The chance discovery of something pleasant or useful.",
-    part: "noun",
-  },
-];
 export default function NewsExplorer({
   feed: initialFeed,
   topic,
@@ -117,11 +73,6 @@ export default function NewsExplorer({
     refresh,
     more,
   } = useNewsPage(initialFeed, topic);
-  const word =
-    words[
-      Math.floor(Date.parse(feed.updatedAt || "2026-01-01") / 86400000) %
-        words.length
-    ];
   const remaining = articles.slice(1);
   const sideStories = (column: number) => remaining
     .filter((_, index) => index % 4 === column)
@@ -184,15 +135,7 @@ export default function NewsExplorer({
               {sideStories(0)}
             </div>
             <div className="frontpage-side frontpage-right">
-              <aside className="p-5 border border-border rounded-2xl">
-                <h2 className="text-xs text-string-secondary mb-2">Word of the Day</h2>
-                <p className="text-2xl font-black">
-                  {word.word}
-                  <span className="text-xs ml-2 text-string-secondary font-extralight">({word.part})</span>
-                </p>
-                <p className="text-sm text-string-secondary font-extralight">{word.pronunciation}</p>
-                <p className="text-sm text-string-secondary mt-2">{word.definition}</p>
-              </aside>
+              <WordOfDay />
               {sideStories(3)}
             </div>
           </div>
