@@ -6,7 +6,6 @@ import type { NewsPage, NewsItem, Topic } from "@/types/news";
 import { topicLabels } from "@/types/news";
 import StoryActions from "./StoryActions";
 import StoryImage from "./StoryImage";
-import VisualTitle from "./VisualTitle";
 import dynamic from "next/dynamic";
 const MarketWatch = dynamic(() => import("./MarketWatch"), {
   loading: () => <p className="m-5 text-sm text-string-secondary" role="status">Loading the Market Ledger…</p>,
@@ -128,11 +127,7 @@ export default function NewsExplorer({
     ];
   return (
     <main id="main" className="w-full flex flex-col items-center">
-      {topic ? (
-        <VisualTitle title={topicLabels[topic]} />
-      ) : (
-        <h1 className="sr-only">Latest news</h1>
-      )}
+      <h1 className="sr-only">{topic ? topicLabels[topic] : "Latest news"}</h1>
       <div className="w-5/6 border-l border-r border-border font-main">
         <div className="newspaper-toolbar m-5 mb-0 pb-3 border-b border-border flex flex-wrap justify-between items-center gap-3 text-xs">
           <div>

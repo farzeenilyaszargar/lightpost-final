@@ -1367,7 +1367,6 @@ h1, h2 { overflow-wrap: anywhere; }
   .masthead-logo { grid-column: 1; font-size: clamp(21px, 6.8vw, 32px); padding-left: 6px; }
 }
 
-.navigation-item:hover, .navigation-item:focus-visible { color: var(--text); }
 .navigation-item[aria-current="page"] .navigation-icon { stroke-width: 1.9; }
 .masthead-actions svg { flex-shrink: 0; }
 

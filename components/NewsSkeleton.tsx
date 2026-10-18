@@ -1,9 +1,7 @@
-import VisualTitle from "./VisualTitle";
-
 export default function NewsSkeleton({ title }: { title?: string }) {
   return (
     <main id="main" aria-label="Loading news" aria-busy="true" className="w-full flex flex-col items-center font-main">
-      {title && <VisualTitle title={title} />}
+      <h1 className="sr-only">{title || "Latest news"}</h1>
       <div className="w-5/6 border-l border-r border-border p-5 min-h-[60vh]">
         <p className="text-string-secondary text-sm mb-5" role="status">
           Loading the latest news…
