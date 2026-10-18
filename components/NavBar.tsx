@@ -34,11 +34,6 @@ export const navList: NavItem[] = [
     icon: "chip",
   },
   {
-    name: "Science",
-    link: "/news/science",
-    icon: "flask",
-  },
-  {
     name: "Sports",
     link: "/news/sports",
     icon: "trophy",

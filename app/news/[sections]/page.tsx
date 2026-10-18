@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Header from "@/components/Header";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -33,6 +33,7 @@ export default async function TopicPage({
 }) {
   const { sections } = await params;
   if (!topics.includes(sections as Topic)) notFound();
+  if (sections === 'science') permanentRedirect('/news/technology');
   return (
     <>
       <Header />

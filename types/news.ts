@@ -12,8 +12,8 @@ export const topicLabels: Record<Topic, string> = {
   world: "World",
   politics: "Politics",
   business: "Business",
-  technology: "Technology",
-  science: "Science",
+  technology: "Tech",
+  science: "Tech",
   sports: "Sports",
   entertainment: "Culture",
 };

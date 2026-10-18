@@ -20,6 +20,9 @@ test("saved theme is applied before hydration and tolerates unavailable storage"
 });
 
 test("navigation retains the correct section for aliases, articles, and games", () => {
+  assert.equal(isRouteActive('/news/technology', '/news/science'), true);
+  assert.equal(isRouteActive('/news/technology', '/news/science/story'), true);
+  assert.equal(isRouteActive('/news/technology', '/news/science-extra'), false);
   assert.equal(isRouteActive("/", "/news/latest/"), true);
   assert.equal(isRouteActive("/", "/news/politics"), false);
   assert.equal(isRouteActive("/news/politics", "/news/politics/story"), true);

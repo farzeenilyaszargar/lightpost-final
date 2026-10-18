@@ -36,7 +36,7 @@ export default async function ArticlePage({ params }: Props) {
       >
         <div className="md:w-1/2 mx-auto">
           <Link
-            href={`/news/${topic}`}
+            href={`/news/${topic === 'science' ? 'technology' : topic}`}
             className="text-xs text-string-secondary inline-block mb-4"
           >
             ← Back to {topicLabels[topic]}

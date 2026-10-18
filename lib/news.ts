@@ -22,8 +22,9 @@ const cachedTopic = unstable_cache(
   { revalidate: 300 },
 );
 export const getNews = cache(async (topic?: Topic): Promise<NewsFeed> => {
-  if (topic) return cachedTopic(topic);
-  const feeds = await Promise.all(topics.map((t) => cachedTopic(t)));
+  if (topic && topic !== 'technology') return cachedTopic(topic);
+  const editionTopics: readonly Topic[] = topic === 'technology' ? ['technology', 'science'] : topics;
+  const feeds = await Promise.all(editionTopics.map((t) => cachedTopic(t)));
   const dates = feeds
     .map((feed) => feed.updatedAt)
     .filter((date): date is string => !!date)
