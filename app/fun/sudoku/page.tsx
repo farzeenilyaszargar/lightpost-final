@@ -4,7 +4,8 @@ import GameFrame, {
   PuzzleControls,
   PuzzleLoading,
 } from "@/components/games/GameFrame";
-import { useDailyGame, useMarkComplete } from "@/components/games/useDailyGame";
+import { useMarkComplete } from "@/components/games/useDailyGame";
+import { useOnlineGame } from "@/components/games/useOnlineGame";
 import { makeSudoku, validSudoku, sudokuDone } from "@/lib/games/sudoku";
 export default function Sudoku() {
   const [difficulty, setDifficulty] = useState("standard"),
@@ -15,7 +16,7 @@ export default function Sudoku() {
     (random: () => number) => makeSudoku(random, difficulty),
     [difficulty],
   );
-  const game = useDailyGame(`sudoku-${difficulty}`, create, validSudoku);
+  const game = useOnlineGame(`/api/puzzles/sudoku?difficulty=${difficulty}`, create, validSudoku);
   const s = game.state;
   const done = !!s && sudokuDone(s);
   useMarkComplete("sudoku", done, game.round === 0, game.day);
@@ -54,12 +55,12 @@ export default function Sudoku() {
         "Fill every row, column, and 3 × 3 box with the numbers 1 to 9. Each number appears once.",
         "Select a square, then type a number or use the number buttons. Arrow keys move around the board; Backspace erases.",
         "Printed figures cannot be changed. Check your work when ready, or use up to three hints.",
-        "Every generated puzzle has exactly one solution. Daily progress is saved separately for each difficulty.",
+        "Online boards are checked for a unique solution. The difficulty selector applies to offline fallback boards.",
       ]}
       controls={
-        <PuzzleControls {...game}>
+        <PuzzleControls game={game}>
           <label className="puzzle-difficulty">
-            Difficulty{" "}
+            Offline difficulty{" "}
             <select
               aria-label="Sudoku difficulty"
               value={difficulty}

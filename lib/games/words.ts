@@ -86,7 +86,8 @@ export function validWord(value: unknown): value is WordState {
   if (!value || typeof value !== "object") return false;
   const s = value as WordState;
   return (
-    words.some((w) => w.word === s.word && w.clue === s.clue) &&
+    typeof s.word === "string" && /^[a-z]{4,12}$/.test(s.word) &&
+    typeof s.clue === "string" && s.clue.length > 0 && s.clue.length <= 1000 &&
     Array.isArray(s.guessed) &&
     s.guessed.every((c) => typeof c === "string" && /^[a-z]$/.test(c)) &&
     typeof s.hintUsed === "boolean"
@@ -106,4 +107,10 @@ export function guessLetter(s: WordState, letter: string): WordState {
   )
     return s;
   return { ...s, guessed: [...s.guessed, c] };
+}
+
+export function dictionaryClue(definition: string, word: string) {
+  if (!/^[a-z]{4,12}$/.test(word)) throw new Error('Invalid clue word');
+  const text = definition.replace(new RegExp(`\\b${word}\\b`, 'gi'), '_____');
+  return text.length > 220 ? `${text.slice(0, 217).replace(/\s+\S*$/, '')}…` : text;
 }

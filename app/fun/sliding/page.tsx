@@ -69,7 +69,7 @@ export default function Sliding() {
         "With the board focused, arrow keys move the empty square in that direction.",
         "Every starting arrangement is solvable. Undo a move or start over at any time.",
       ]}
-      controls={<PuzzleControls {...game} />}
+      controls={<PuzzleControls game={game} />}
     >
       {!s ? (
         <PuzzleLoading />

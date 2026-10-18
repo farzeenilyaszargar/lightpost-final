@@ -1,20 +1,18 @@
 import Header from "@/components/Header";
 import Navbar from "@/components/NavBar";
-import Footer from "@/components/Footer";
 export const metadata = {
   title: { default: "The Amusements", template: "%s | Lightpost" },
   description:
-    "Sudoku, word games, arithmetic, sliding tiles, chess, and the funny papers. A Victorian newspaper puzzle page for a curious mind.",
+    "Fresh online chess tactics, Sudoku, word games and comics, alongside endless print puzzles. A screen-sized Victorian newspaper supplement.",
 };
 export default function FunLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className="amusements-shell">
       <Header />
       <Navbar />
       <main id="main" className="amusements-frame">
         {children}
       </main>
-      <Footer />
-    </>
+    </div>
   );
 }

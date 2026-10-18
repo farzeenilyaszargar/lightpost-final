@@ -91,7 +91,7 @@ export default function Arithmetic() {
         "A tick means the equation is correct. Any mathematically valid sign is accepted.",
         "Three hints are available. A new sheet resets answers and hints without reloading the page.",
       ]}
-      controls={<PuzzleControls {...game} />}
+      controls={<PuzzleControls game={game} />}
     >
       {!s ? (
         <PuzzleLoading />

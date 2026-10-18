@@ -23,7 +23,7 @@ export function candidates(cells: number[], index: number) {
       ),
   );
 }
-export function countSolutions(cells: number[], limit = 2): number {
+export function countSolutions(cells: number[], limit = 2, onSolution?: (solution: number[]) => void): number {
   if (
     !isNumberArray(cells, 81, 9) ||
     cells.some((n, i) => n !== 0 && !candidates(cells, i).includes(n))
@@ -43,7 +43,7 @@ export function countSolutions(cells: number[], limit = 2): number {
         if (options.length === 1) break;
       }
     }
-    if (best < 0) return 1;
+    if (best < 0) { onSolution?.([...copy]); return 1; }
     let count = 0;
     for (const n of options) {
       copy[best] = n;

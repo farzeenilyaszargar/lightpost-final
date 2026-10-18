@@ -1,10 +1,11 @@
 "use client";
 import Icon from "@/components/Icon";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import GameFrame from "@/components/games/GameFrame";
+import { comicNeighbor } from "@/lib/comics";
+import GameFrame, { PuzzleLoading } from "@/components/games/GameFrame";
 import HouseComic from "@/components/games/HouseComic";
-type Comic = { num: number; title: string; img: string; alt: string };
+type Comic = { num: number; title: string; img: string; alt: string; latest: number };
 export default function FunnyPapers() {
   const [comic, setComic] = useState<Comic | null>(null),
     [loading, setLoading] = useState(false),
@@ -13,7 +14,7 @@ export default function FunnyPapers() {
     [mode, setMode] = useState<"house" | "xkcd">("house");
   const request = useRef<AbortController | null>(null);
   useEffect(() => () => request.current?.abort(), []);
-  async function load() {
+  const load = useCallback(async (number?: number) => {
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
@@ -21,7 +22,7 @@ export default function FunnyPapers() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("/api/comic", {
+      const response = await fetch(number ? `/api/comic?num=${number}` : "/api/comic", {
         signal: AbortSignal.any([
           controller.signal,
           AbortSignal.timeout(14000),
@@ -38,6 +39,8 @@ export default function FunnyPapers() {
         !item.img.startsWith("https://imgs.xkcd.com/")
       )
         throw new Error();
+      if (!Number.isInteger(item.latest) || item.latest < item.num) throw new Error();
+      if (controller.signal.aborted) return;
       setComic(item);
     } catch {
       if (controller.signal.aborted) return;
@@ -48,7 +51,8 @@ export default function FunnyPapers() {
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }
-  }
+  }, []);
+  useEffect(() => { void load(); }, [load]);
   function local() {
     request.current?.abort();
     setLoading(false);
@@ -62,22 +66,17 @@ export default function FunnyPapers() {
       title="The Funny Papers"
       description="A small illustrated diversion, prescribed for excessively serious days."
       rules={[
-        "The Lightpost sketchbook opens immediately, without a network request.",
-        "Select Read xkcd for a random comic by Randall Munroe, credited with a link to the original.",
+        "The latest xkcd opens automatically. Next and Previous browse its archive without a daily cap.",
+        "At either end of the archive, keep going to wrap around. Comic 404 is deliberately missing and is skipped.",
         "If the comic wire is down, our in-house panels remain available.",
       ]}
       controls={
         <>
-          <span className="puzzle-edition">Illustrated diversions</span>
+          <span className="puzzle-edition">{comic && mode === "xkcd" ? `xkcd · No. ${comic.num} of ${comic.latest}` : "The Lightpost sketchbook"}</span>
           <div className="puzzle-controls">
-            <button onClick={local}>Another sketch ↻</button>
-            <button onClick={load} disabled={loading}>
-              {loading
-                ? "Calling the wire…"
-                : mode === "xkcd"
-                  ? "Another xkcd ↻"
-                  : <>Read xkcd <Icon name="arrowUpRight" size={20} className="outbound-icon" /></>}
-            </button>
+            <button disabled={loading || !comic} onClick={() => { if (comic) { void load(comicNeighbor(comic.num, comic.latest, -1)); } }}>Previous</button>
+            <button onClick={() => { void load(comic ? comicNeighbor(comic.num, comic.latest, 1) : undefined); }} disabled={loading}>{loading ? 'Calling the wire…' : 'Next comic →'}</button>
+            <button onClick={local}>Sketchbook</button>
           </div>
         </>
       }
@@ -87,13 +86,8 @@ export default function FunnyPapers() {
           {error}
         </p>
       )}
-      {mode === "xkcd" && loading && (
-        <p className="puzzle-loading" role="status">
-          A comic is on its way. The sketchbook remains at hand.
-        </p>
-      )}
-      {mode === "xkcd" && comic && !loading ? (
-        <article className="xkcd-comic">
+      {mode === "xkcd" && comic ? (
+        <article className="xkcd-comic" aria-busy={loading}>
           <p className="amusement-kicker">XKCD • RANDALL MUNROE</p>
           <h2>{comic.title}</h2>
           <Image
@@ -118,6 +112,8 @@ export default function FunnyPapers() {
             Read the original at xkcd <Icon name="arrowUpRight" size={20} className="outbound-icon" />
           </a>
         </article>
+      ) : mode === "xkcd" && loading ? (
+        <PuzzleLoading />
       ) : (
         <HouseComic index={house} />
       )}

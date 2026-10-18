@@ -48,18 +48,16 @@ Articles include `id`, `title`, `description`, `published_at`, `image_url`, `top
 
 ## Reading experience
 
-- Server-rendered latest and topic editions with search, source filtering, and incremental story loading.
-- Responsive navigation, light/dark themes, loading and error states, keyboard focus indicators, and reduced-motion support.
-- Bookmarks stored only in the current browser (up to 200). No login or tracking identity.
-- Publisher attribution and direct original-report links on cards and article pages.
-- The original LIGHTPOST masthead, four font families, monochrome themes, bordered page frame, four-column home layout, rounded cards, introductory banner, and scrolling section titles.
-- A word-of-the-day sidebar using a small local vocabulary list; no AI request or database is involved.
-- A Victorian Amusements supplement with five playable daily games and the Funny Papers. The original masthead, fonts, colours, and news layout are preserved.
-- Sudoku puzzles have exactly one solution and three difficulty settings. Word games use a curated clue bank. Arithmetic accepts every valid operator and checks only when requested. Sliding tiles support legal moves, arrow keys, and undo. Chess uses `chess.js` to validate moves and local mate-in-one positions, with no external chess API.
-- Daily puzzles are deterministic for an edition date (Asia/Kolkata). Daily progress and completion marks stay in this browser; free-play rounds do not overwrite the daily game. Browser storage is optional.
-- Original Lightpost comic panels open immediately. Optional xkcd comics use the existing same-origin proxy, with timeouts and a local alternative when the provider or image fails.
-
-The previous Supabase/OpenAI ingestion jobs, fake bias ratings, database reaction counters, sample news fallback, ad injection, and unused stock endpoints have been removed. Any old deployed environment keys can be removed from hosting settings. The `supabase/` SQL migration is retained only as historical reference and is not used by this app.
+- Latest and category editions use four flowing newspaper columns. The front-page lead spans the middle two columns, and Word of the Day stays at the top right.
+- The original LIGHTPOST masthead, four font families, monochrome themes, bordered frame and rounded cards remain. Section headings, search and update toolbars are omitted; only the market-price ticker scrolls.
+- Bookmarks stay in the current browser. Publisher cards link directly to their original reports.
+- The Amusements index and each activity occupy one dynamic viewport, including the masthead and navigation. Controls stay compact; unusually small viewports, lengthy rules and comic captions can scroll inside the activity instead of extending the page.
+- Comics open the latest xkcd automatically. Next and Previous browse the numbered archive, skip the deliberately missing #404, and wrap around at the ends. Source links and Randall Munroe attribution remain visible.
+- Chess fetches fresh Lichess tactics without authentication. Positions and complete UCI solutions are validated using `chess.js`. Both colours, automatic opponent replies, promotion, hints, reveal and replay are supported; any mating move wins a mate-in-one puzzle.
+- Sudoku fetches Dosuku boards and validates their solutions. Ambiguous boards receive extra solution clues until unique. The difficulty selector applies to the local fallback when the online source cannot be reached.
+- The Missing Word uses Random Word API and Free Dictionary API, with adapted, credited Wiktionary clues. Arithmetic and sliding puzzles generate fresh rounds locally and retain their daily progress.
+- Every activity has a Next control with no app-imposed daily cap. External archives are finite and providers can rate-limit requests. Labeled local print editions keep puzzles playable during outages; the sketchbook is a small local comic fallback.
+- Old advertising scripts, Supabase browser access and the sample-news fallback have been removed. The `supabase/` migration is retained only as historical reference.
 
 ## Checks
 
@@ -73,13 +71,16 @@ npm start
 npm run perf:check -- http://localhost:3000
 ```
 
-Tests cover feed normalization, unsafe URLs, deduplication, source outages, daily seeds and edition boundaries, unique Sudoku solutions, word-game terminal states, arithmetic validation, every chess problem’s mating move, and sliding-puzzle solvability/undo.
+Tests cover news normalization and outages, pagination, daily edition boundaries, source parsing, unique Sudoku validation and repair, complete online chess lines and alternate mates, word clues, comic archive navigation, arithmetic, and sliding-puzzle solvability/undo.
 
 ## Sources
 
 - [BBC feeds](https://support.bbc.co.uk/platform/feeds/NewsFeeds.htm)
 - [Guardian RSS feeds](https://www.theguardian.com/help/feeds)
-- [xkcd JSON interface](https://xkcd.com/json.html)
+- [xkcd JSON interface and attribution](https://xkcd.com/about/)
+- [Lichess API](https://lichess.org/api) and [CC0 puzzles](https://database.lichess.org/#puzzles)
+- [Dosuku](https://sudoku-api.vercel.app/)
+- [Random Word API](https://github.com/RazorSh4rk/random-word-api) and [Free Dictionary API](https://dictionaryapi.dev/)
 
 Publisher content remains credited to its source. Feeds are externally maintained and their availability and contents can change.
 

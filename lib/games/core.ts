@@ -67,8 +67,8 @@ export const gameList = [
   {
     id: "chess",
     name: "The Chess Problem",
-    deck: "The whole affair turns upon a single move.",
-    detail: "Move the pieces on the board and find checkmate in one.",
+    deck: "Tactics from real games, printed in ink.",
+    detail: "Play a complete tactical line from Lichess, then turn to the next.",
     kind: "A game of kings",
     time: "2–5 minutes",
     mark: "chess",

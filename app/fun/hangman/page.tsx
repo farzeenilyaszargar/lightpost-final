@@ -4,7 +4,8 @@ import GameFrame, {
   PuzzleControls,
   PuzzleLoading,
 } from "@/components/games/GameFrame";
-import { useDailyGame, useMarkComplete } from "@/components/games/useDailyGame";
+import { useMarkComplete } from "@/components/games/useDailyGame";
+import { useOnlineGame } from "@/components/games/useOnlineGame";
 import {
   makeWord,
   validWord,
@@ -13,7 +14,7 @@ import {
   guessLetter,
 } from "@/lib/games/words";
 export default function MissingWord() {
-  const game = useDailyGame("word", makeWord, validWord);
+  const game = useOnlineGame("/api/puzzles/word", makeWord, validWord);
   const s = game.state;
   const won = !!s && wordWon(s),
     wrong = s ? wrongLetters(s) : [],
@@ -55,7 +56,7 @@ export default function MissingWord() {
         "One hint reveals a missing letter without using a chance.",
         "After a win or loss, start over or take on another word.",
       ]}
-      controls={<PuzzleControls {...game} />}
+      controls={<PuzzleControls game={game} />}
     >
       {!s ? (
         <PuzzleLoading />

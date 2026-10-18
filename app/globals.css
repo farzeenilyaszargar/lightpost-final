@@ -1419,3 +1419,114 @@ h1, h2 { overflow-wrap: anywhere; }
 }
 .story-actions svg { display: block; width: 20px; height: 20px; flex-shrink: 0; }
 .masthead-actions svg { width: 24px; height: 24px; }
+
+/* A screen-sized amusement supplement, with ink-and-paper playing surfaces. */
+.amusements-shell { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+.amusements-shell > header, .amusements-shell > nav { flex-shrink: 0; }
+.amusements-shell .amusements-frame { flex: 1; min-height: 0; overflow: hidden; }
+.amusements-hub { height: 100%; min-height: 0; padding: 14px 20px; display: flex; flex-direction: column; gap: 12px; font-family: var(--font-main), serif; }
+.hub-masthead { text-align: center; border-bottom: 3px double var(--borders); padding-bottom: 10px; }
+.hub-masthead h1 { font-family: var(--font-logo), serif; font-size: clamp(24px, 3vw, 38px); line-height: 1.1; margin: 4px 0; }
+.hub-masthead h1 > span { font-size: .7em; }
+.hub-masthead > p:last-child { font-size: 12px; color: var(--text-second); }
+.hub-games { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.hub-game { border: 1px solid var(--borders); border-radius: 12px; min-height: 0; min-width: 0; display: flex; flex-direction: column; padding: 10px 12px; }
+.hub-game-caption, .hub-game-bottom { display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: var(--text-second); gap: 6px; }
+.hub-game > .game-engraving { flex: 1; min-height: 0; height: auto; margin: 4px 0; overflow: hidden; border: 0; }
+.hub-game .game-engraving > * { transform: scale(.55); }
+.hub-game .engraving-comic svg { height: 110px; transform: none; }
+.hub-game-copy h2 { font-family: var(--font-logo), serif; font-size: clamp(18px, 1.9vw, 26px); line-height: 1.1; }
+.hub-game-copy p { font-size: 11px; color: var(--text-second); margin: 4px 0; }
+.hub-game-bottom { border-top: 1px solid var(--borders); padding-top: 5px; margin-top: 4px; }
+.hub-colophon { font-size: 10px; text-align: center; color: var(--text-second); }
+.amusements-shell .puzzle-page { height: 100%; min-height: 0; padding: 10px 18px; display: flex; flex-direction: column; position: relative; }
+.amusements-shell .amusement-back { margin-bottom: 4px; font-size: 11px; align-self: flex-start; }
+.amusements-shell .puzzle-title { padding-bottom: 8px; flex-shrink: 0; }
+.amusements-shell .puzzle-title h1 { font-size: clamp(24px, 3vw, 34px); margin: 2px 0; line-height: 1.1; }
+.amusements-shell .puzzle-title > p:last-child { font-size: 12px; line-height: 1.3; }
+.amusements-shell .puzzle-title .amusement-kicker { display: none; }
+.amusements-shell .puzzle-layout { flex: 1; min-height: 0; margin-top: 10px; gap: 20px; grid-template-columns: minmax(0, 3fr) minmax(175px, 1fr); }
+.amusements-shell .puzzle-playing { min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; padding-right: 4px; --paper-board: clamp(180px, calc(100dvh - 420px), 400px); }
+.amusements-shell .puzzle-notes { min-height: 0; overflow: auto; scrollbar-width: thin; padding-left: 16px; }
+.amusements-shell .puzzle-notes h2 { font-size: 17px; margin-bottom: 7px; }
+.amusements-shell .puzzle-notes li { font-size: 11px; line-height: 1.5; }
+.amusements-shell .puzzle-more { margin-top: 14px; padding-top: 12px; }
+.amusements-shell .puzzle-more > a { padding-block: 5px; font-size: 12px; }
+.puzzle-rules-toggle { display: none; }
+.amusements-shell .puzzle-toolbar { gap: 6px 12px; padding-bottom: 8px; margin-bottom: 8px; }
+.amusements-shell .puzzle-edition { font-size: 11px; }
+.amusements-shell .puzzle-controls { gap: 10px; }
+.amusements-shell .puzzle-next { border: 1px solid var(--borders); border-radius: 18px; padding: 5px 12px; color: var(--text); font-weight: bold; }
+.puzzle-source { flex-basis: 100%; font-size: 10px; color: var(--text-second); }
+.puzzle-source a { text-decoration: underline; text-underline-offset: 2px; }
+.amusements-shell .puzzle-stats { margin-bottom: 7px; font-size: 10px; }
+.amusements-shell .chess-board, .amusements-shell .sudoku-board, .amusements-shell .sliding-board { width: min(100%, var(--paper-board)); flex-shrink: 0; }
+.amusements-shell .chess-piece { font-size: clamp(21px, calc((100dvh - 420px) / 10), 40px); }
+.amusements-shell .chess-light { background: #f1eadd; }
+.amusements-shell .chess-dark { background: #b9ad98; }
+.amusements-shell .chess-board { border: 3px double #453b2d; }
+.amusements-shell .sudoku-board > button { font-size: clamp(14px, 2.2vh, 23px); }
+.amusements-shell .puzzle-buttons { margin-top: 9px; gap: 6px; }
+.amusements-shell .puzzle-buttons > button { padding: 5px 10px; font-size: 11px; }
+.amusements-shell .puzzle-message { padding: 7px 4px; min-height: 30px; font-size: 12px; line-height: 1.4; }
+.amusements-shell .puzzle-message.success { margin-top: 5px; }
+.chess-promotion { font-size: 10px; display: flex; align-items: center; gap: 4px; }
+.chess-promotion select { background: var(--background); border: 1px solid var(--borders); border-radius: 12px; padding: 3px; }
+.amusements-shell .sudoku-keypad { width: min(100%, 380px); margin-top: 8px; gap: 3px; }
+.amusements-shell .sudoku-keypad > button { min-height: 28px; font-size: 14px; }
+.amusements-shell .word-drawing { width: 100px; height: 84px; }
+.amusements-shell .word-clue { margin: 8px auto; font-size: 15px; line-height: 1.4; }
+.amusements-shell .word-spaces { margin: 10px 0; }
+.amusements-shell .word-spaces > span { height: 32px; font-size: 24px; }
+.amusements-shell .letter-keyboard { margin-block: 10px; gap: 4px; }
+.amusements-shell .letter-keyboard > button { min-height: 28px; font-size: 13px; }
+.amusements-shell .puzzle-caption { margin: 7px 0; }
+.amusements-shell .arithmetic-sheet { margin-block: 8px; }
+.amusements-shell .arithmetic-row { padding-block: 7px; min-height: 42px; font-size: 22px; }
+.amusements-shell .arithmetic-row input, .amusements-shell .arithmetic-row select { height: 32px; font-size: 19px; }
+.amusements-shell [data-game="comic"] .puzzle-playing { display: flex; flex-direction: column; }
+.amusements-shell [data-game="comic"] .puzzle-toolbar { flex-shrink: 0; }
+.amusements-shell .xkcd-comic { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px; }
+.amusements-shell .xkcd-comic h2, .amusements-shell .house-comic h2 { font-size: 23px; margin: 4px 0 8px; }
+.amusements-shell .xkcd-comic > img { flex: 1; min-height: 0; width: 100%; max-height: none; object-fit: contain; margin: 0 auto; }
+.amusements-shell .xkcd-comic > p:not(.amusement-kicker) { max-height: 42px; overflow: auto; font-size: 11px; line-height: 1.3; margin-top: 6px; }
+.amusements-shell .xkcd-comic > a { margin-top: 6px; font-size: 11px; }
+.amusements-shell .comic-drawing { padding: 8px 6px 0; gap: 6px; }
+.amusements-shell .comic-drawing > p { min-height: 35px; font-size: 10px; }
+.amusements-shell .comic-drawing > svg { max-height: 150px; }
+.amusements-shell .comic-caption { font-size: 12px; margin: 8px auto; }
+@media (max-width: 760px) {
+  .amusements-shell .amusements-frame { width: 94%; }
+  .amusements-hub { padding: 10px; gap: 8px; }
+  .hub-masthead { padding-bottom: 7px; }
+  .hub-masthead .amusement-kicker { font-size: 7px; letter-spacing: 1px; }
+  .hub-games { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .hub-game { padding: 7px 9px; }
+  .hub-game-caption { font-size: 8px; }
+  .hub-game-copy p { display: none; }
+  .hub-game-bottom { font-size: 8px; }
+  .hub-game .game-engraving > * { transform: scale(.4); }
+  .hub-colophon { font-size: 9px; }
+  .amusements-shell .puzzle-page { padding: 9px 12px; }
+  .amusements-shell .puzzle-layout { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: 8px; }
+  .amusements-shell .puzzle-notes { display: none; }
+  .amusements-shell .puzzle-notes.is-open { display: block; position: absolute; inset: 45px 8px 8px; background: var(--background); z-index: 3; border: 1px solid var(--borders); border-radius: 10px; padding: 18px; }
+  .puzzle-rules-toggle { display: block; float: right; font-size: 10px; text-decoration: underline; position: relative; z-index: 4; padding: 4px; }
+  .amusements-shell .puzzle-title h1 { font-size: 27px; }
+  .amusements-shell .puzzle-title > p:last-child { font-size: 11px; }
+  .amusements-shell .puzzle-toolbar { gap: 6px; }
+  .amusements-shell .puzzle-difficulty { width: auto; }
+}
+@media (max-height: 600px) {
+  .hub-game > .game-engraving { display: none; }
+  .hub-game-copy { flex: 1; display: flex; align-items: center; }
+  .hub-game-copy p { display: none; }
+  .hub-masthead > p:last-child, .hub-colophon { display: none; }
+}
+.amusements-shell [data-game="hangman"] .puzzle-playing {
+  border: 1px solid var(--borders);
+  padding: 10px;
+  background-image: repeating-linear-gradient(transparent 0 27px, color-mix(in srgb, var(--text) 5%, transparent) 28px, transparent 29px);
+}
+.amusements-shell [data-game="sudoku"] .puzzle-playing { --paper-board: clamp(180px, calc(100dvh - 460px), 365px); }
+.amusements-shell [data-game="comic"] .puzzle-loading { flex: 1; }
