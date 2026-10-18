@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Icon from '@/components/Icon';
 import { gameList } from '@/lib/games/core';
 import GameIllustration from '@/components/games/GameIllustration';
 export default function Amusements() {
@@ -15,7 +14,6 @@ export default function Amusements() {
           <div className="hub-game-caption"><span>No. {String(index + 1).padStart(2, '0')}</span><span>{game.kind}</span></div>
           <GameIllustration kind={game.mark} />
           <div className="hub-game-copy"><h2>{game.name}</h2><p>{game.deck}</p></div>
-          <div className="hub-game-bottom"><span>{['chess','comic','sudoku','hangman'].includes(game.id) ? 'Fresh from the wire' : 'Endless print editions'}</span><Icon name="arrowUpRight" size={20} /></div>
         </Link>)}
       </div>
       <p className="hub-colophon">Open an edition. Play or read. Press Next for another. No account, no daily play cap.</p>
