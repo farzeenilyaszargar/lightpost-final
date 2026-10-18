@@ -1365,6 +1365,10 @@ h1, h2 { overflow-wrap: anywhere; }
 .market-price-belt { display: flex; width: max-content; min-width: 200%; animation: market-prices-scroll 45s linear infinite; }
 .market-price-track { display: flex; flex: 1 0 auto; align-items: center; justify-content: space-around; gap: 32px; padding-right: 32px; }
 .market-price-track > li { white-space: nowrap; }
+.market-gain { color: #237044; }
+.market-loss { color: #b33434; }
+.dark .market-gain { color: #80c99a; }
+.dark .market-loss { color: #f09393; }
 .market-price-ticker:hover .market-price-belt,
 .market-price-ticker:focus-within .market-price-belt,
 .market-price-ticker.is-paused .market-price-belt { animation-play-state: paused; }

@@ -32,3 +32,36 @@ test('market parser rejects unusable histories and non-finite quotes', () => {
   data.chart.result[0].meta.regularMarketPrice = NaN;
   assert.throws(() => parseMarketChart('AAPL', data));
 });
+
+test('daily movement uses the previous trading close rather than the three-month opening', () => {
+  for (const [current, expected] of [[110, 10], [90, -10], [100, 0]]) {
+    const data = { chart: { result: [{
+      meta: { symbol: 'AAPL', currency: 'USD', regularMarketPrice: current,
+        regularMarketTime: Date.parse('2026-10-19T15:00:00Z') / 1000,
+        exchangeTimezoneName: 'America/New_York', chartPreviousClose: 50 },
+      timestamp: ['2026-10-15T13:30:00Z', '2026-10-16T13:30:00Z', '2026-10-19T13:30:00Z'].map(date => Date.parse(date) / 1000),
+      indicators: { quote: [{ close: [80, 100, current] }] },
+    }] } };
+    assert.ok(Math.abs(parseMarketChart('AAPL', data).changePercent! - expected) < 1e-10);
+    // A missing current candle must still compare to Friday, not Thursday.
+    data.chart.result[0].indicators.quote[0].close.pop();
+    assert.ok(Math.abs(parseMarketChart('AAPL', data).changePercent! - expected) < 1e-10);
+  }
+});
+
+test('movement respects the quote session and exchange date across UTC midnight', () => {
+  const data = { chart: { result: [{
+    meta: { symbol: 'AAPL', currency: 'USD', regularMarketPrice: 110,
+      regularMarketTime: Date.parse('2026-10-17T00:00:00Z') / 1000,
+      exchangeTimezoneName: 'America/New_York', gmtoffset: -14400 },
+    timestamp: ['2026-10-15T13:30:00Z', '2026-10-16T13:30:00Z'].map(date => Date.parse(date) / 1000),
+    indicators: { quote: [{ close: [100, 110] }] },
+  }] } };
+  assert.ok(Math.abs(parseMarketChart('AAPL', data).changePercent! - 10) < 1e-10);
+  data.chart.result[0].meta.exchangeTimezoneName = 'invalid';
+  assert.ok(Math.abs(parseMarketChart('AAPL', data).changePercent! - 10) < 1e-10);
+});
+
+test('missing exchange information leaves movement unknown instead of inventing a gain', () => {
+  assert.equal(parseMarketChart('AAPL', chart()).changePercent, null);
+});

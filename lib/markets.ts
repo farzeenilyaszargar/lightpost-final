@@ -12,6 +12,7 @@ export type MarketQuote = {
   name: string;
   currency: string;
   price: number;
+  changePercent: number | null;
   asOf: string;
   history: { date: string; close: number }[];
 };
@@ -23,7 +24,7 @@ export function isMarketSymbol(value: string): value is MarketSymbol {
 // displaying it; missing quotes must never become zeroes or simulated prices.
 export function parseMarketChart(symbol: MarketSymbol, data: unknown): MarketQuote {
   const result = (data as { chart?: { result?: unknown[] } })?.chart?.result?.[0] as {
-    meta?: { symbol?: string; currency?: string; regularMarketPrice?: number; regularMarketTime?: number };
+    meta?: { symbol?: string; currency?: string; regularMarketPrice?: number; regularMarketTime?: number; exchangeTimezoneName?: string; gmtoffset?: number };
     timestamp?: number[];
     indicators?: { quote?: { close?: (number | null)[] }[] };
   } | undefined;
@@ -38,9 +39,27 @@ export function parseMarketChart(symbol: MarketSymbol, data: unknown): MarketQuo
       ? [{ date: new Date(time * 1000).toISOString(), close }] : [];
   });
   if (history.length < 2 || meta.regularMarketPrice! <= 0) throw new Error('Missing price history');
+  // Compare trading dates in the exchange's timezone. The last history point
+  // may be today's unfinished candle; chartPreviousClose is the range's start.
+  const tradingDate = (date: string) => {
+    if (meta.exchangeTimezoneName) {
+      try {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: meta.exchangeTimezoneName, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(date));
+      } catch { /* Use the supplied exchange offset if its timezone is invalid. */ }
+    }
+    return Number.isFinite(meta.gmtoffset)
+      ? new Date(new Date(date).getTime() + meta.gmtoffset! * 1000).toISOString().slice(0, 10) : null;
+  };
+  const asOf = new Date(meta.regularMarketTime! * 1000).toISOString();
+  const quoteDate = tradingDate(asOf);
+  const previousClose = quoteDate ? history.filter(point => {
+    const date = tradingDate(point.date);
+    return date && date < quoteDate;
+  }).sort((a, b) => b.date.localeCompare(a.date))[0]?.close : undefined;
   return {
     symbol, name: marketSymbols[symbol], currency: meta.currency,
     price: meta.regularMarketPrice!,
-    asOf: new Date(meta.regularMarketTime! * 1000).toISOString(), history,
+    changePercent: previousClose ? (meta.regularMarketPrice! / previousClose - 1) * 100 : null,
+    asOf, history,
   };
 }

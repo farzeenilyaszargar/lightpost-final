@@ -5,6 +5,10 @@ import { useEffect, useState } from 'react';
 import { marketSymbols, type MarketQuote, type MarketSymbol } from '@/lib/markets';
 
 const symbols = Object.keys(marketSymbols) as MarketSymbol[];
+const movementClass = (quote?: MarketQuote) => quote?.changePercent == null || quote.changePercent === 0
+  ? '' : quote.changePercent > 0 ? 'market-gain' : 'market-loss';
+const movement = (quote: MarketQuote) => quote.changePercent == null ? ''
+  : ` (${new Intl.NumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' }).format(quote.changePercent)}%)`;
 const price = (quote: MarketQuote, value = quote.price) => quote.symbol.startsWith('^')
   ? `${new Intl.NumberFormat('en', { maximumFractionDigits: 2 }).format(value)} pts`
   : new Intl.NumberFormat('en', { style: 'currency', currency: quote.currency, maximumFractionDigits: 2 }).format(value);
@@ -57,7 +61,7 @@ export default function MarketWatch() {
       </div>
       <div className="border-y border-border py-3">
         <div className="flex items-center justify-between gap-3 mb-2 text-xs text-string-secondary">
-          <p>Latest available stock &amp; index prices · may be delayed</p>
+          <p>Latest available prices · % vs previous close · may be delayed</p>
           <button type="button" className="shrink-0 underline underline-offset-4" aria-pressed={tickerPaused} aria-controls="market-price-ticker" onClick={() => setTickerPaused(value => !value)}>
             {tickerPaused ? 'Resume prices' : 'Pause prices'}
           </button>
@@ -67,9 +71,9 @@ export default function MarketWatch() {
             {[0, 1].map(copy => (
               <ul key={copy} className="market-price-track text-sm" aria-label={copy === 0 ? 'Latest available market prices' : undefined} aria-hidden={copy === 1 ? true : undefined}>
                 {symbols.map(symbol => (
-                  <li key={symbol}>
+                  <li key={symbol} className={movementClass(quotes[symbol])}>
                     <span className="font-bold">{marketSymbols[symbol]}</span>{' '}
-                    {quotes[symbol] ? price(quotes[symbol]!) : pending ? '…' : 'Unavailable'}
+                    {quotes[symbol] ? `${price(quotes[symbol]!)}${movement(quotes[symbol]!)}` : pending ? '…' : 'Unavailable'}
                     {quotes[symbol] && <time dateTime={quotes[symbol]!.asOf} className="block text-xs text-string-secondary">{new Date(quotes[symbol]!.asOf).toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST</time>}
                   </li>
                 ))}
@@ -79,7 +83,7 @@ export default function MarketWatch() {
         </div>
       </div>
       {quote ? <>
-        <p className="mt-4 font-bold">{quote.name} · {price(quote)}</p>
+        <p className={`mt-4 font-bold ${movementClass(quote)}`}>{quote.name} · {price(quote)}{movement(quote)}</p>
         <svg viewBox="0 0 800 220" role="img" aria-labelledby="market-chart-title market-chart-description" className="w-full max-h-72 text-string-primary">
           <title id="market-chart-title">{quote.name}: three months of daily closing prices</title>
           <desc id="market-chart-description">{history.length} trading sessions. First close {price(quote, history[0].close)}, last close {price(quote, history[history.length - 1].close)}. Low {price(quote, low)}, high {price(quote, high)}.</desc>
