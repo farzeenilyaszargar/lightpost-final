@@ -1,13 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { Chess, type Square, type PieceSymbol } from 'chess.js';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { Chess, type Square, type PieceSymbol, type Color } from 'chess.js';
+import ChessPiece from '@/components/games/ChessPiece';
 import GameFrame, { PuzzleControls, PuzzleLoading } from '@/components/games/GameFrame';
 import { useOnlineGame } from '@/components/games/useOnlineGame';
 import { makePrintChess, validOnlineChess, playOnlineMove } from '@/lib/online-puzzles';
-const glyphs = {
-  w: { k: '♔', q: '♕', r: '♖', b: '♗', n: '♘', p: '♙' },
-  b: { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' },
-};
+type Motion = { id: number; from: Square; to: Square; type: PieceSymbol; color: Color };
+type Feedback = { kind: 'wrong' | 'correct' | 'illegal'; from: Square; to: Square };
 const names = { k: 'king', q: 'queen', r: 'rook', b: 'bishop', n: 'knight', p: 'pawn' };
 export default function ChessProblem() {
   const game = useOnlineGame('/api/puzzles/chess', makePrintChess, validOnlineChess);
@@ -15,24 +14,66 @@ export default function ChessProblem() {
   const [selected, setSelected] = useState<Square | null>(null);
   const [message, setMessage] = useState('');
   const [promotion, setPromotion] = useState<PieceSymbol>('q');
-  useEffect(() => { setSelected(null); setMessage(''); setPromotion('q'); }, [game.key]);
-  const board = s ? new Chess(s.fen) : null;
-  const legal = board && selected ? board.moves({ square: selected, verbose: true }).map(move => move.to) : [];
+  const [previewFen, setPreviewFen] = useState<string | null>(null);
+  const [motion, setMotion] = useState<Motion | null>(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const timers = useRef<number[]>([]);
+  const motionId = useRef(0);
+  const clearFeedback = useCallback(() => {
+    timers.current.forEach(timer => window.clearTimeout(timer));
+    timers.current = [];
+    setMotion(null); setFeedback(null); setPreviewFen(null);
+  }, []);
+  useEffect(() => {
+    clearFeedback(); setSelected(null); setMessage(''); setPromotion('q');
+    return () => { timers.current.forEach(timer => window.clearTimeout(timer)); timers.current = []; };
+  }, [game.key, game.pending, clearFeedback]);
+  const board = s ? new Chess(previewFen || s.fen) : null;
+  const busy = feedback !== null;
+  const legal = board && selected && !busy ? board.moves({ square: selected, verbose: true }).map(move => move.to) : [];
   const color = s?.player === 'b' ? 'Black' : 'White';
+  const later = (callback: () => void, delay: number) => { timers.current.push(window.setTimeout(callback, delay)); };
+  function animate(from: Square, to: Square, type: PieceSymbol, color: Color) {
+    setMotion({ id: ++motionId.current, from, to, type, color });
+  }
   function select(square: Square) {
-    if (!s || !board || s.status !== 'playing') return;
+    if (!s || !board || busy || s.status !== 'playing') return;
     const piece = board.get(square);
     if (piece?.color === s.player) { setSelected(square); setMessage(`Selected ${names[piece.type]} on ${square}. Choose a destination.`); return; }
     if (!selected) { setMessage(`Select a ${color.toLowerCase()} piece first.`); return; }
     try {
       const result = playOnlineMove(s, selected, square, promotion);
       game.update(result.state);
-      setMessage(result.message);
       setSelected(null);
-    } catch { setMessage('That move is not legal. Choose a marked square.'); }
+      setPreviewFen(result.attemptedFen);
+      animate(result.move.from, result.move.to, result.move.promotion || result.move.piece, result.move.color);
+      setFeedback({ kind: result.correct ? 'correct' : 'wrong', from: selected, to: square });
+      if (!result.correct) {
+        setMessage(`Not quite. ${result.move.san} is legal, but another move is stronger. The piece will return.`);
+        later(() => setMotion(null), 240);
+        later(() => {
+          setPreviewFen(s.fen);
+          animate(result.move.to, result.move.from, result.move.piece, result.move.color);
+        }, 1000);
+        later(() => { clearFeedback(); setMessage(result.message); }, 1240);
+      } else {
+        setMessage('Good move.');
+        later(() => {
+          if (result.reply) {
+            setPreviewFen(result.state.fen);
+            animate(result.reply.from, result.reply.to, result.reply.promotion || result.reply.piece, result.reply.color);
+            later(() => { clearFeedback(); setMessage(result.message); }, 240);
+          } else { clearFeedback(); setMessage(result.message); }
+        }, 240);
+      }
+    } catch {
+      setFeedback({ kind: 'illegal', from: selected, to: square });
+      setMessage('That move is not legal. Try one of the marked squares.');
+      later(clearFeedback, 600);
+    }
   }
   function reveal() {
-    if (!s || !board || s.status !== 'playing') return;
+    if (!s || !board || busy || s.status !== 'playing') return;
     const moves = s.solution.slice(s.step).map(move => board.move(move).san);
     game.update(old => ({ ...old, fen: board.fen(), step: old.solution.length, status: 'revealed' }));
     setSelected(null); setMessage(`Solution: ${moves.join(' · ')}. Start over to try it yourself.`);
@@ -44,32 +85,38 @@ export default function ChessProblem() {
       rules={[
         'Play the strongest continuation. Your pieces are at the bottom, whether White or Black.',
         'Select a piece, then a destination. The opponent replies automatically after a correct move.',
-        'A legal but incorrect move returns to the same position. Finish the full line to solve the puzzle.',
+        'Wrong legal moves travel to the chosen square, turn red, then return. The position stays available for another try.',
         'Use a hint, reveal the line, start over, or press Next puzzle whenever you wish. Promotion defaults to a queen.',
       ]}
       controls={<PuzzleControls game={game} />}>
       {!s || !board ? <PuzzleLoading /> : <>
         <div className="puzzle-stats"><span>{s.rating ? `Rating ${s.rating}` : 'Print edition'} · {color} to move</span><span>{s.attempts} attempts · {Math.min(Math.ceil(s.step / 2), Math.ceil(s.solution.length / 2))}/{Math.ceil(s.solution.length / 2)} moves</span></div>
-        <div className="chess-board" role="group" aria-label={`Chess board. ${color} to move.`}>
+        <div className="chess-board printed-chess" data-feedback={feedback?.kind} aria-busy={busy} role="group" aria-label={`Chess board. ${color} to move.`}>
           {ranks.flatMap((rank, r) => [...files].map((file, c) => {
             const square = `${file}${rank}` as Square;
             const piece = board.get(square);
-            return <button key={square} className={`${(r + c) % 2 ? 'chess-dark' : 'chess-light'} ${selected === square ? 'selected' : ''}`}
-              onClick={() => select(square)} disabled={s.status !== 'playing'}
+            return <button key={square} className={`${(r + c) % 2 ? 'chess-dark' : 'chess-light'} ${selected === square ? 'selected' : ''} ${feedback && (feedback.to === square || feedback.from === square) ? feedback.kind === 'correct' ? 'move-correct' : 'move-wrong' : ''}`}
+              onClick={() => select(square)} disabled={busy || s.status !== 'playing'}
               aria-label={`${square}, ${piece ? `${piece.color === 'w' ? 'white' : 'black'} ${names[piece.type]}` : 'empty'}${legal.includes(square) ? ', legal destination' : ''}`} aria-pressed={selected === square}>
-              {piece && <span className={`chess-piece piece-${piece.color}`}>{glyphs[piece.color][piece.type]}</span>}
+              {piece && (!motion || (motion.to !== square && motion.from !== square)) && <ChessPiece type={piece.type} color={piece.color} />}
               {!piece && legal.includes(square) && <span className="legal-dot" />}
               {c === 0 && <small className="chess-rank">{rank}</small>}{r === 7 && <small className="chess-file">{file}</small>}
             </button>;
           }))}
+          {motion && <span key={motion.id} className="chess-motion" style={{
+            left: `${files.indexOf(motion.from[0]) * 12.5}%`,
+            top: `${ranks.indexOf(Number(motion.from[1])) * 12.5}%`,
+            '--move-x': `${(files.indexOf(motion.to[0]) - files.indexOf(motion.from[0])) * 100}%`,
+            '--move-y': `${(ranks.indexOf(Number(motion.to[1])) - ranks.indexOf(Number(motion.from[1]))) * 100}%`,
+          } as CSSProperties}><ChessPiece type={motion.type} color={motion.color} /></span>}
         </div>
         <div className="puzzle-buttons">
-          <button disabled={s.status !== 'playing'} onClick={() => { game.update(old => ({ ...old, hinted: true })); setMessage(`Look at the piece on ${s.solution[s.step].slice(0,2)}.`); }}>A hint</button>
-          <button disabled={s.status !== 'playing'} onClick={reveal}>Reveal line</button>
-          <button onClick={() => { game.reset(); setSelected(null); setMessage(''); }}>Start over</button>
-          <label className="chess-promotion">Promote to <select aria-label="Promotion piece" value={promotion} onChange={event => setPromotion(event.target.value as PieceSymbol)}><option value="q">Queen</option><option value="r">Rook</option><option value="b">Bishop</option><option value="n">Knight</option></select></label>
+          <button disabled={busy || s.status !== 'playing'} onClick={() => { game.update(old => ({ ...old, hinted: true })); setMessage(`Look at the piece on ${s.solution[s.step].slice(0,2)}.`); }}>A hint</button>
+          <button disabled={busy || s.status !== 'playing'} onClick={reveal}>Reveal line</button>
+          <button onClick={() => { clearFeedback(); game.reset(); setSelected(null); setMessage(''); }}>Start over</button>
+          <label className="chess-promotion">Promote to <select aria-label="Promotion piece" disabled={busy || s.status !== 'playing'} value={promotion} onChange={event => setPromotion(event.target.value as PieceSymbol)}><option value="q">Queen</option><option value="r">Rook</option><option value="b">Bishop</option><option value="n">Knight</option></select></label>
         </div>
-        <p className={`puzzle-message ${s.status === 'solved' ? 'success' : ''}`} role="status">{message || (s.status === 'solved' ? 'Puzzle solved.' : `Select a ${color.toLowerCase()} piece to begin.`)}</p>
+        <p className={`puzzle-message ${s.status === 'solved' ? 'success' : ''} ${feedback && feedback.kind !== 'correct' ? 'chess-error' : ''}`} role="status">{message || (s.status === 'solved' ? 'Puzzle solved.' : `Select a ${color.toLowerCase()} piece to begin.`)}</p>
       </>}
     </GameFrame>
   );

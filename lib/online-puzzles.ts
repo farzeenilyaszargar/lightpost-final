@@ -93,14 +93,16 @@ export function playOnlineMove(state: OnlineChess, from: Square, to: Square, pro
   const board = new Chess(state.fen);
   const move = board.move({ from, to, promotion });
   if (move.lan !== state.solution[state.step] && !board.isCheckmate()) {
-    return { state: { ...state, attempts: state.attempts + 1 }, message: 'That is legal, but another move is stronger. Try again from the same position.' };
+    return { correct: false as const, move, attemptedFen: board.fen(), reply: null, state: { ...state, attempts: state.attempts + 1 }, message: 'That is legal, but another move is stronger. Try again from the same position.' };
   }
   let step = board.isCheckmate() ? state.solution.length : state.step + 1;
-  let reply = '';
-  if (step < state.solution.length) { reply = board.move(state.solution[step]).san; step++; }
+  const attemptedFen = board.fen();
+  let reply: ReturnType<Chess['move']> | null = null;
+  if (step < state.solution.length) { reply = board.move(state.solution[step]); step++; }
   const solved = step >= state.solution.length;
   return {
+    correct: true as const, move, attemptedFen, reply,
     state: { ...state, fen: board.fen(), step, attempts: state.attempts + 1, hinted: false, status: solved ? 'solved' as const : 'playing' as const },
-    message: solved ? 'Beautifully played! The whole line is solved. A fresh puzzle awaits with Next.' : `Correct. Opponent replies ${reply}. Find your next move.`,
+    message: solved ? 'Beautifully played! The whole line is solved. A fresh puzzle awaits with Next.' : `Correct. Opponent replies ${reply?.san}. Find your next move.`,
   };
 }

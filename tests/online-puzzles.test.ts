@@ -85,3 +85,27 @@ test('dictionary clues hide the answer case-insensitively and stay brief', async
   assert.equal(dictionaryClue('Reading is the art of READING.', 'reading'), '_____ is the art of _____.');
   assert.ok(dictionaryClue('A lengthy description. '.repeat(50), 'reading').length <= 220);
 });
+
+test('wrong moves expose a moved-piece preview while preserving the playable position', () => {
+  const state = parseLichess(chessFixture);
+  const board = new Chess(state.fen);
+  const move = board.moves({ verbose: true }).find(move => move.lan !== state.solution[0])!;
+  const result = playOnlineMove(state, move.from, move.to);
+  assert.equal(result.correct, false);
+  assert.notEqual(result.attemptedFen, state.fen);
+  assert.equal(result.state.fen, state.fen);
+  const preview = new Chess(result.attemptedFen);
+  assert.equal(preview.get(move.from), undefined);
+  assert.equal(preview.get(move.to)?.type, move.piece);
+  assert.equal(result.reply, null);
+});
+test('correct move animation starts before the automatic reply and ends at the stored position', () => {
+  const state = parseLichess(chessFixture);
+  const move = state.solution[0];
+  const result = playOnlineMove(state, move.slice(0,2) as Square, move.slice(2,4) as Square);
+  assert.equal(result.correct, true);
+  assert.ok(result.reply);
+  assert.equal(result.move.after, result.attemptedFen);
+  assert.equal(result.reply.before, result.attemptedFen);
+  assert.equal(result.reply.after, result.state.fen);
+});

@@ -1517,3 +1517,33 @@ h1, h2 { overflow-wrap: anywhere; }
 }
 .amusements-shell [data-game="sudoku"] .puzzle-playing { --paper-board: clamp(180px, calc(100dvh - 460px), 365px); }
 .amusements-shell [data-game="comic"] .puzzle-loading { flex: 1; }
+
+/* Printed chess diagrams: paper, fine diagonal hatching, and ink silhouettes. */
+.amusements-shell .printed-chess {
+  position: relative;
+  width: min(100%, clamp(200px, calc(100dvh - 400px), 430px));
+  border: 2px solid #61675c;
+  background: #e5e5d9;
+  isolation: isolate;
+}
+.printed-chess > button { border-right: 1px solid #8a8e80; border-bottom: 1px solid #8a8e80; overflow: hidden; }
+.printed-chess > button:nth-child(8n) { border-right: 0; }
+.printed-chess > button:nth-child(n+57) { border-bottom: 0; }
+.amusements-shell .printed-chess .chess-light { background: #e5e5d9; }
+.amusements-shell .printed-chess .chess-dark {
+  background-color: #dedfd2;
+  background-image: repeating-linear-gradient(135deg, transparent 0 2.5px, #687063 2.5px 3.5px, transparent 3.5px 5px);
+}
+.chess-piece-svg { display: block; width: 94%; height: 94%; position: relative; z-index: 2; fill: #eeeedd; stroke: #383e34; }
+.chess-piece-svg.piece-b { fill: #7d8476; }
+.chess-piece-svg .piece-detail { fill: #383e34; }
+.printed-chess small { z-index: 3; font-weight: bold; font-size: 9px; background: #e5e5d9b8; line-height: 1; }
+.printed-chess .legal-dot { position: absolute; z-index: 3; outline: 2px solid #e5e5d9; background: #383e34; opacity: .7; width: 8px; height: 8px; }
+.printed-chess > button.selected { box-shadow: inset 0 0 0 2px #383e34; }
+.printed-chess > button.move-correct { box-shadow: inset 0 0 0 2px #383e34; }
+.printed-chess > button.move-wrong::after { content: ''; position: absolute; inset: 0; background: #c3313155; box-shadow: inset 0 0 0 2px #a02626; z-index: 1; pointer-events: none; }
+.chess-motion { position: absolute; width: 12.5%; height: 12.5%; display: grid; place-items: center; z-index: 5; pointer-events: none; animation: printed-piece-travel 220ms ease-in-out both; }
+@keyframes printed-piece-travel { from { transform: translate(0, 0); } to { transform: translate(var(--move-x), var(--move-y)); } }
+.amusements-shell .chess-error { color: #a02626; font-weight: bold; }
+.dark .amusements-shell .chess-error { color: #ed9b91; }
+@media (prefers-reduced-motion: reduce) { .chess-motion { animation: none; transform: translate(var(--move-x), var(--move-y)); } }
