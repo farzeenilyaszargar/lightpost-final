@@ -3,9 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { NewsPage, Topic } from "@/types/news";
 import { NEWS_PAGE_SIZE } from "@/lib/news-page";
 export function useNewsPage(initial: NewsPage, topic?: Topic) {
-  const [source, setSource] = useState("all");
-  const filterKey = source;
-  const [result, setResult] = useState({ page: initial, key: "all" }),
+  const [feed, setFeed] = useState(initial),
     [pending, setPending] = useState(false),
     [loadingMore, setLoadingMore] = useState(false),
     [error, setError] = useState("");
@@ -25,7 +23,6 @@ export function useNewsPage(initial: NewsPage, topic?: Topic) {
           offset: String(offset),
         });
         if (topic) params.set("topic", topic);
-        if (source !== "all") params.set("source", source);
         const response = await fetch(`/api/news?${params}`, {
           signal: AbortSignal.any([
             controller.signal,
@@ -38,24 +35,19 @@ export function useNewsPage(initial: NewsPage, topic?: Topic) {
         if (!Array.isArray(page.articles) || !Number.isInteger(page.total))
           throw new Error("Invalid news response");
         if (controller.signal.aborted) return;
-        setResult((previous) => ({
-          key: filterKey,
-          page:
-            append && previous.key === filterKey
-              ? {
-                  ...page,
-                  articles: [
-                    ...previous.page.articles,
-                    ...page.articles.filter(
-                      (article) =>
-                        !previous.page.articles.some(
-                          (old) => old.id === article.id,
-                        ),
-                    ),
-                  ],
-                }
-              : page,
-        }));
+        setFeed((previous) =>
+          append
+            ? {
+                ...page,
+                articles: [
+                  ...previous.articles,
+                  ...page.articles.filter(
+                    (article) => !previous.articles.some((old) => old.id === article.id),
+                  ),
+                ],
+              }
+            : page,
+        );
       } catch {
         if (!controller.signal.aborted)
           setError("Headlines could not be loaded. Please try again.");
@@ -66,7 +58,7 @@ export function useNewsPage(initial: NewsPage, topic?: Topic) {
         }
       }
     },
-    [topic, source, filterKey],
+    [topic],
   );
   useEffect(() => {
     if (first.current) {
@@ -86,24 +78,22 @@ export function useNewsPage(initial: NewsPage, topic?: Topic) {
     const timer = window.setInterval(() => {
       if (
         document.visibilityState === "visible" &&
-        result.page.articles.length <= NEWS_PAGE_SIZE
+        feed.articles.length <= NEWS_PAGE_SIZE
       )
         void load();
     }, 300000);
     return () => window.clearInterval(timer);
-  }, [load, result.page.articles.length]);
+  }, [load, feed.articles.length]);
   return {
-    feed: result.page,
-    articles: result.key === filterKey ? result.page.articles : [],
-    source,
-    setSource,
+    feed,
+    articles: feed.articles,
     pending,
     loadingMore,
     error,
     refresh: () => load(),
     more: () => {
-      if (result.page.nextOffset !== null && !pending && !loadingMore)
-        void load(result.page.nextOffset, true);
+      if (feed.nextOffset !== null && !pending && !loadingMore)
+        void load(feed.nextOffset, true);
     },
   };
 }

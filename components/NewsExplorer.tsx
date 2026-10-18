@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Icon from "./Icon";
 import { useNewsPage } from "./useNewsPage";
 import type { NewsPage, NewsItem, Topic } from "@/types/news";
 import { topicLabels } from "@/types/news";
@@ -111,15 +110,12 @@ export default function NewsExplorer({
   const {
     feed,
     articles,
-    source,
-    setSource,
     pending,
     loadingMore,
     error,
     refresh,
     more,
   } = useNewsPage(initialFeed, topic);
-  const filtering = source !== "all";
   const word =
     words[
       Math.floor(Date.parse(feed.updatedAt || "2026-01-01") / 86400000) %
@@ -129,46 +125,6 @@ export default function NewsExplorer({
     <main id="main" className="w-full flex flex-col items-center">
       <h1 className="sr-only">{topic ? topicLabels[topic] : "Latest news"}</h1>
       <div className="w-5/6 border-l border-r border-border font-main">
-        <div className="newspaper-toolbar m-5 mb-0 pb-3 border-b border-border flex flex-wrap justify-between items-center gap-3 text-xs">
-          <div>
-            <span>{feed.stale ? "Last available edition" : "Latest news"}</span>
-            {feed.updatedAt && (
-              <span className="text-string-secondary ml-3">
-                Updated{" "}
-                {new Date(feed.updatedAt).toLocaleTimeString("en", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  timeZone: "Asia/Kolkata",
-                })}{" "}
-                IST
-              </span>
-            )}
-          </div>
-          <div className="flex gap-3 items-center flex-wrap">
-            <label>
-              <span className="sr-only">Filter by source</span>
-              <select
-                value={source}
-                onChange={(e) => {
-                  setSource(e.target.value);
-                }}
-                className="bg-background border border-border rounded-full px-2 py-1.5"
-              >
-                <option value="all">All sources</option>
-                <option>BBC News</option>
-                <option>The Guardian</option>
-              </select>
-            </label>
-            <button
-              aria-label="Refresh headlines"
-              onClick={refresh}
-              disabled={pending || loadingMore}
-              className="px-1 text-lg"
-            >
-              <Icon name="refresh" size={18} />
-            </button>
-          </div>
-        </div>
         {topic === "business" && <MarketWatch />}
         {feed.unavailableSources.length > 0 && (
           <p role="status" className="m-5 text-sm text-string-secondary">
@@ -176,7 +132,7 @@ export default function NewsExplorer({
               ? "Showing the last available news while sources reconnect."
               : feed.articles.length
                 ? "Some sources are temporarily unavailable. Available stories are shown below."
-                : "News sources are unavailable. Please try refreshing shortly."}
+                : "News sources are unavailable. Please try again shortly."}
           </p>
         )}
         {error && (
@@ -196,30 +152,12 @@ export default function NewsExplorer({
           </div>
         ) : !articles.length ? (
           <div className="p-10 text-center">
-            <h2 className="text-xl font-bold mb-3">
-              {filtering
-                ? "No matching stories"
-                : "No news available right now"}
-            </h2>
-            <p className="text-string-secondary">
-              {filtering
-                ? "Try a different source."
-                : "Please try again in a few minutes."}
-            </p>
-            {filtering && (
-              <button
-                className="border border-border rounded-full px-4 py-2 mt-4"
-                onClick={() => {
-                  setSource("all");
-                }}
-              >
-                Clear filters
-              </button>
-            )}
+            <h2 className="text-xl font-bold mb-3">No news available right now</h2>
+            <p className="text-string-secondary">Please try again in a few minutes.</p>
           </div>
         ) : (
           <div className="news-columns p-5">
-            {!topic && !filtering && (
+            {!topic && (
               <aside className="p-3 border border-border rounded-2xl">
                 <h2 className="text-2xl mb-2 font-bold">What&apos;s Happening</h2>
                 <p className="text-sm text-string-secondary leading-relaxed">
@@ -229,9 +167,9 @@ export default function NewsExplorer({
               </aside>
             )}
             {articles.map((article, index) => (
-              <StoryCard key={article.id} article={article} featured={!topic && !filtering && index === 0} />
+              <StoryCard key={article.id} article={article} featured={!topic && index === 0} />
             ))}
-            {!topic && !filtering && (
+            {!topic && (
               <aside className="p-5 border border-border rounded-2xl">
                 <h2 className="text-xs text-string-secondary mb-2">Word of the Day</h2>
                 <p className="text-2xl font-black">

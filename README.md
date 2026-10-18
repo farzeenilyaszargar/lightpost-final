@@ -87,7 +87,7 @@ Publisher content remains credited to its source. Feeds are externally maintaine
 
 The four original font families are self-hosted with Latin and Latin Extended subsets and their OFL licenses in `public/fonts/`. Only four critical faces are preloaded; all font filenames contain content hashes and receive immutable cache headers. No font provider request is required at build time or in the browser.
 
-The first news render includes 21 stories. Load more, search, and publisher filters fetch small API pages; search still covers every cached story. Article and section links do not prefetch entire collections. Publisher images use responsive WebP optimization on an explicit host allowlist, reserve their layout space, and load lazily except for the lead image. Image optimization requires the normal Node/Next.js server or compatible hosting.
+The first news render includes 21 stories. Load more and automatic refresh fetch small API pages. News pages omit the update toolbar and source filter. Article and section links do not prefetch entire collections. Publisher images use responsive WebP optimization on an explicit host allowlist, reserve their layout space, and load lazily except for the lead image. Image optimization requires the normal Node/Next.js server or compatible hosting.
 
 `npm run perf:check` guards production HTML, stylesheet, initial story count, preload count, and API payload budgets. [Measured before/after results](docs/performance.md) describe the scope and limitations of the local comparison.
 
