@@ -1,3 +1,5 @@
+import ChessPiece from './ChessPiece';
+
 export default function GameIllustration({ kind }: { kind: string }) {
   return (
     <div className={`game-engraving engraving-${kind}`} aria-hidden="true">
@@ -31,10 +33,16 @@ export default function GameIllustration({ kind }: { kind: string }) {
           ))}
         </div>
       ) : kind === "chess" ? (
-        <div className="mini-chess">
-          <span>♞</span>
-          <div>♟ ♟ ♟ ♟ ♟</div>
-        </div>
+        <svg className="chess-cover" viewBox="0 0 240 120" fill="none">
+          <defs><pattern id="cover-hatch" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M-1 1L1-1M0 4L4 0M3 5L5 3" stroke="currentColor" strokeWidth=".6" /></pattern></defs>
+          <g transform="translate(64 3)">
+            {Array.from({ length: 64 }, (_, i) => <rect key={i} x={i % 8 * 14} y={Math.floor(i / 8) * 14} width="14" height="14" fill={(i + Math.floor(i / 8)) % 2 ? 'url(#cover-hatch)' : 'var(--background)'} stroke="currentColor" strokeWidth=".35" />)}
+            {([{ x: 84, y: 0, type: 'k', color: 'b' }, { x: 70, y: 14, type: 'p', color: 'b' }, { x: 98, y: 14, type: 'p', color: 'b' }, { x: 42, y: 42, type: 'n', color: 'w' }, { x: 14, y: 70, type: 'q', color: 'w' }, { x: 84, y: 98, type: 'k', color: 'w' }] as const).map((piece, i) => <svg key={i} x={piece.x} y={piece.y} width="14" height="14" viewBox="0 0 48 48"><ChessPiece type={piece.type} color={piece.color} /></svg>)}
+            <path d="M49 43V22H77m-5-4 5 4-5 4" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2" />
+          </g>
+          <svg x="7" y="29" width="44" height="60" viewBox="0 0 48 48"><ChessPiece type="n" color="w" /></svg>
+          <svg x="186" y="29" width="44" height="60" viewBox="0 0 48 48"><ChessPiece type="k" color="b" /></svg>
+        </svg>
       ) : (
         <svg
           viewBox="0 0 240 140"

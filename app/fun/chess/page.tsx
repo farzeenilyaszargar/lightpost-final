@@ -1,6 +1,7 @@
 'use client';
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { Chess, type Square, type PieceSymbol, type Color } from 'chess.js';
+import { chessSquareAt } from '@/lib/chess-board';
 import ChessPiece from '@/components/games/ChessPiece';
 import GameFrame, { PuzzleControls, PuzzleLoading } from '@/components/games/GameFrame';
 import { useOnlineGame } from '@/components/games/useOnlineGame';
@@ -17,12 +18,16 @@ export default function ChessProblem() {
   const [previewFen, setPreviewFen] = useState<string | null>(null);
   const [motion, setMotion] = useState<Motion | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [drag, setDrag] = useState<{ from: Square; type: PieceSymbol; color: Color; x: number; y: number } | null>(null);
+  const dragStart = useRef<{ from: Square; pointerId: number; x: number; y: number; moved: boolean } | null>(null);
+  const suppressClick = useRef(false);
   const timers = useRef<number[]>([]);
   const motionId = useRef(0);
   const clearFeedback = useCallback(() => {
     timers.current.forEach(timer => window.clearTimeout(timer));
     timers.current = [];
     setMotion(null); setFeedback(null); setPreviewFen(null);
+    setDrag(null); dragStart.current = null;
   }, []);
   useEffect(() => {
     clearFeedback(); setSelected(null); setMessage(''); setPromotion('q');
@@ -41,13 +46,17 @@ export default function ChessProblem() {
     const piece = board.get(square);
     if (piece?.color === s.player) { setSelected(square); setMessage(`Selected ${names[piece.type]} on ${square}. Choose a destination.`); return; }
     if (!selected) { setMessage(`Select a ${color.toLowerCase()} piece first.`); return; }
+    attemptMove(selected, square);
+  }
+  function attemptMove(from: Square, square: Square) {
+    if (!s || busy || s.status !== 'playing') return;
     try {
-      const result = playOnlineMove(s, selected, square, promotion);
+      const result = playOnlineMove(s, from, square, promotion);
       game.update(result.state);
       setSelected(null);
       setPreviewFen(result.attemptedFen);
       animate(result.move.from, result.move.to, result.move.promotion || result.move.piece, result.move.color);
-      setFeedback({ kind: result.correct ? 'correct' : 'wrong', from: selected, to: square });
+      setFeedback({ kind: result.correct ? 'correct' : 'wrong', from, to: square });
       if (!result.correct) {
         setMessage(`Not quite. ${result.move.san} is legal, but another move is stronger. The piece will return.`);
         later(() => setMotion(null), 240);
@@ -67,10 +76,40 @@ export default function ChessProblem() {
         }, 240);
       }
     } catch {
-      setFeedback({ kind: 'illegal', from: selected, to: square });
+      setFeedback({ kind: 'illegal', from, to: square });
       setMessage('That move is not legal. Try one of the marked squares.');
       later(clearFeedback, 600);
     }
+  }
+  function beginDrag(event: PointerEvent<HTMLButtonElement>, square: Square) {
+    suppressClick.current = false;
+    if (!s || !board || busy || s.status !== 'playing' || !event.isPrimary || event.button !== 0) return;
+    const piece = board.get(square);
+    if (!piece || piece.color !== s.player) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragStart.current = { from: square, pointerId: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+  }
+  function moveDrag(event: PointerEvent<HTMLButtonElement>) {
+    const start = dragStart.current;
+    if (!start || start.pointerId !== event.pointerId || !board) return;
+    if (!start.moved && Math.hypot(event.clientX - start.x, event.clientY - start.y) < 4) return;
+    start.moved = true;
+    const piece = board.get(start.from);
+    if (!piece) return;
+    const rect = event.currentTarget.parentElement!.getBoundingClientRect();
+    setSelected(start.from);
+    setDrag({ from: start.from, ...piece, x: (event.clientX - rect.left) / rect.width * 100, y: (event.clientY - rect.top) / rect.height * 100 });
+  }
+  function endDrag(event: PointerEvent<HTMLButtonElement>, cancelled = false) {
+    const start = dragStart.current;
+    if (!start || start.pointerId !== event.pointerId) return;
+    dragStart.current = null; setDrag(null);
+    if (!start.moved) return;
+    suppressClick.current = true;
+    const rect = event.currentTarget.parentElement!.getBoundingClientRect();
+    const to = cancelled ? null : chessSquareAt(event.clientX - rect.left, event.clientY - rect.top, rect.width, rect.height, s?.player === 'b');
+    if (to && to !== start.from) attemptMove(start.from, to);
+    else { setSelected(start.from); setMessage('Move cancelled. Choose a destination or drag again.'); }
   }
   function reveal() {
     if (!s || !board || busy || s.status !== 'playing') return;
@@ -84,7 +123,7 @@ export default function ChessProblem() {
     <GameFrame id="chess" title="The Chess Problem" description={`${color} to move. Find the best continuation from a real game.`}
       rules={[
         'Play the strongest continuation. Your pieces are at the bottom, whether White or Black.',
-        'Select a piece, then a destination. The opponent replies automatically after a correct move.',
+        'Drag a piece to its destination, or select a piece then a square. The opponent replies automatically after a correct move.',
         'Wrong legal moves travel to the chosen square, turn red, then return. The position stays available for another try.',
         'Use a hint, reveal the line, start over, or press Next puzzle whenever you wish. Promotion defaults to a queen.',
       ]}
@@ -96,13 +135,15 @@ export default function ChessProblem() {
             const square = `${file}${rank}` as Square;
             const piece = board.get(square);
             return <button key={square} className={`${(r + c) % 2 ? 'chess-dark' : 'chess-light'} ${selected === square ? 'selected' : ''} ${feedback && (feedback.to === square || feedback.from === square) ? feedback.kind === 'correct' ? 'move-correct' : 'move-wrong' : ''}`}
-              onClick={() => select(square)} disabled={busy || s.status !== 'playing'}
+              onPointerDown={event => beginDrag(event, square)} onPointerMove={moveDrag} onPointerUp={event => endDrag(event)} onPointerCancel={event => endDrag(event, true)} onLostPointerCapture={event => endDrag(event, true)}
+              onClick={() => { if (suppressClick.current) { suppressClick.current = false; return; } select(square); }} disabled={busy || s.status !== 'playing'}
               aria-label={`${square}, ${piece ? `${piece.color === 'w' ? 'white' : 'black'} ${names[piece.type]}` : 'empty'}${legal.includes(square) ? ', legal destination' : ''}`} aria-pressed={selected === square}>
-              {piece && (!motion || (motion.to !== square && motion.from !== square)) && <ChessPiece type={piece.type} color={piece.color} />}
+              {piece && drag?.from !== square && (!motion || (motion.to !== square && motion.from !== square)) && <ChessPiece type={piece.type} color={piece.color} />}
               {!piece && legal.includes(square) && <span className="legal-dot" />}
               {c === 0 && <small className="chess-rank">{rank}</small>}{r === 7 && <small className="chess-file">{file}</small>}
             </button>;
           }))}
+          {drag && <span className="chess-drag" style={{ left: `${drag.x}%`, top: `${drag.y}%` }}><ChessPiece type={drag.type} color={drag.color} /></span>}
           {motion && <span key={motion.id} className="chess-motion" style={{
             left: `${files.indexOf(motion.from[0]) * 12.5}%`,
             top: `${ranks.indexOf(Number(motion.from[1])) * 12.5}%`,
@@ -116,7 +157,7 @@ export default function ChessProblem() {
           <button onClick={() => { clearFeedback(); game.reset(); setSelected(null); setMessage(''); }}>Start over</button>
           <label className="chess-promotion">Promote to <select aria-label="Promotion piece" disabled={busy || s.status !== 'playing'} value={promotion} onChange={event => setPromotion(event.target.value as PieceSymbol)}><option value="q">Queen</option><option value="r">Rook</option><option value="b">Bishop</option><option value="n">Knight</option></select></label>
         </div>
-        <p className={`puzzle-message ${s.status === 'solved' ? 'success' : ''} ${feedback && feedback.kind !== 'correct' ? 'chess-error' : ''}`} role="status">{message || (s.status === 'solved' ? 'Puzzle solved.' : `Select a ${color.toLowerCase()} piece to begin.`)}</p>
+        <p className={`puzzle-message ${s.status === 'solved' ? 'success' : ''} ${feedback && feedback.kind !== 'correct' ? 'chess-error' : ''}`} role="status">{message || (s.status === 'solved' ? 'Puzzle solved.' : `Select a ${color.toLowerCase()} piece to begin, or drag it to a destination.`)}</p>
       </>}
     </GameFrame>
   );
