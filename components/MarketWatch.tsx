@@ -10,6 +10,7 @@ const price = (quote: MarketQuote, value = quote.price) => quote.symbol.startsWi
 
 export default function MarketWatch() {
   const [selected, setSelected] = useState<MarketSymbol>('^GSPC');
+  const [tickerPaused, setTickerPaused] = useState(false);
   const [quotes, setQuotes] = useState<Partial<Record<MarketSymbol, MarketQuote>>>({});
   const [pending, setPending] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -53,14 +54,29 @@ export default function MarketWatch() {
           </select>
         </label>
       </div>
-      <ul className="flex flex-wrap gap-x-6 gap-y-3 border-y border-border py-3 text-sm" aria-label="Latest available market prices">
-        {symbols.map(symbol => <li key={symbol}>
-          <button aria-pressed={selected === symbol} onClick={() => setSelected(symbol)} className={selected === symbol ? 'font-bold underline underline-offset-4' : ''}>
-            {marketSymbols[symbol]}{' '}{quotes[symbol] ? price(quotes[symbol]!) : pending ? '…' : 'Unavailable'}
-            {quotes[symbol] && <time dateTime={quotes[symbol]!.asOf} className="block text-xs text-string-secondary font-normal no-underline">{new Date(quotes[symbol]!.asOf).toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST</time>}
+      <div className="border-y border-border py-3">
+        <div className="flex items-center justify-between gap-3 mb-2 text-xs text-string-secondary">
+          <p>Latest available stock &amp; index prices · may be delayed</p>
+          <button type="button" className="shrink-0 underline underline-offset-4" aria-pressed={tickerPaused} aria-controls="market-price-ticker" onClick={() => setTickerPaused(value => !value)}>
+            {tickerPaused ? 'Resume prices' : 'Pause prices'}
           </button>
-        </li>)}
-      </ul>
+        </div>
+        <div id="market-price-ticker" className={`market-price-ticker${tickerPaused ? ' is-paused' : ''}`} tabIndex={0} role="region" aria-label="Market price ticker. Use Pause prices to stop scrolling.">
+          <div className="market-price-belt">
+            {[0, 1].map(copy => (
+              <ul key={copy} className="market-price-track text-sm" aria-label={copy === 0 ? 'Latest available market prices' : undefined} aria-hidden={copy === 1 ? true : undefined}>
+                {symbols.map(symbol => (
+                  <li key={symbol}>
+                    <span className="font-bold">{marketSymbols[symbol]}</span>{' '}
+                    {quotes[symbol] ? price(quotes[symbol]!) : pending ? '…' : 'Unavailable'}
+                    {quotes[symbol] && <time dateTime={quotes[symbol]!.asOf} className="block text-xs text-string-secondary">{new Date(quotes[symbol]!.asOf).toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST</time>}
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      </div>
       {quote ? <>
         <p className="mt-4 font-bold">{quote.name} · {price(quote)}</p>
         <svg viewBox="0 0 800 220" role="img" aria-labelledby="market-chart-title market-chart-description" className="w-full max-h-72 text-string-primary">

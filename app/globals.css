@@ -1376,3 +1376,19 @@ h1, h2 { overflow-wrap: anywhere; }
 .news-columns > * { break-inside: avoid; margin-bottom: 20px; }
 @media (min-width: 640px) { .news-columns { column-count: 2; } }
 @media (min-width: 1024px) { .news-columns { column-count: 4; } }
+
+/* Only market prices scroll; edition titles remain stationary. */
+.market-price-ticker { overflow: hidden; width: 100%; }
+.market-price-belt { display: flex; width: max-content; min-width: 200%; animation: market-prices-scroll 45s linear infinite; }
+.market-price-track { display: flex; flex: 1 0 auto; align-items: center; justify-content: space-around; gap: 32px; padding-right: 32px; }
+.market-price-track > li { white-space: nowrap; }
+.market-price-ticker:hover .market-price-belt,
+.market-price-ticker:focus-within .market-price-belt,
+.market-price-ticker.is-paused .market-price-belt { animation-play-state: paused; }
+@keyframes market-prices-scroll { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .market-price-ticker { overflow-x: auto; }
+  .market-price-belt { animation: none; width: auto; min-width: 0; }
+  .market-price-track { flex-wrap: wrap; flex-shrink: 1; }
+  .market-price-track[aria-hidden="true"] { display: none; }
+}

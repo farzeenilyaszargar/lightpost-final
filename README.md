@@ -93,6 +93,6 @@ The first news render includes 21 stories. Load more, search, and publisher filt
 
 ## Market Ledger
 
-The Markets edition loads a small SVG chart and a static list of prices on demand. All section headings and prices are stationary; there are no marquees. News listings use four flowing columns on desktop, two on tablets, and one on narrow screens.
+The Markets edition loads a small SVG chart and a scrolling ticker of stock and index prices on demand. Only this price ticker scrolls; section headings remain stationary. The ticker pauses on hover, keyboard focus, or its Pause prices button, and stays stationary for reduced-motion preferences. News listings use four flowing columns on desktop, two on tablets, and one on narrow screens.
 
 `/api/markets?symbol=AAPL` serves allowlisted symbols only (S&P 500, Nasdaq Composite, Nifty 50, Apple, Microsoft, Nvidia). It uses Yahoo Finance's public, unofficial chart endpoint without an API key or paid account. This endpoint is externally maintained and can change or rate-limit requests. Quotes cache for five minutes, carry their original market timestamps and currencies, and may be delayed. The chart displays three months of daily closing prices. Source failures show an unavailable message; a browser retains its last successful quote with the original timestamp. No simulated prices are used.
