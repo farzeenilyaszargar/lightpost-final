@@ -32,7 +32,7 @@ export default function Hero() {
             onClick={() => setVis(!visible)}
             className=" flex justify-end items-center w-1/3 focus:outline-none"
           >
-            <Icon name="close" size={25} className="md:w-7 w-5 mr-10" />
+            <Icon name="close" size={24} className="shrink-0 mr-6 md:mr-8" />
           </button>
         </div>
       </div>

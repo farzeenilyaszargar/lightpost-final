@@ -22,18 +22,18 @@ export default function StoryActions({ article }: { article: NewsItem }) {
     }
   }
   return (
-    <div className="flex justify-between items-center gap-2 mt-3 font-numbers text-xs">
+    <div className="story-actions flex justify-between items-center gap-2 mt-3 font-numbers text-xs">
       <BookmarkButton article={article} />
       <a
         href={article.source_url}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 text-string-secondary"
+        className="inline-flex items-center gap-1.5 min-h-8 text-string-secondary"
       >
         {article.source} <Icon name="arrowUpRight" size={20} className="outbound-icon" />
       </a>
-      <button onClick={share} aria-label="Share story" className="p-1 text-string-secondary hover:text-string-primary">
-        <Icon name="share" size={17} />
+      <button onClick={share} aria-label="Share story" className="story-icon-button text-string-secondary">
+        <Icon name="share" size={20} />
       </button>
       {message && (
         <span role="status" className="text-xs">

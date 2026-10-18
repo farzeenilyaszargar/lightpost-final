@@ -93,8 +93,7 @@ select:focus-visible {
   background: none;
   border: none;
 }
-.bookmark-button.is-saved,
-.bookmark-button:hover {
+.bookmark-button.is-saved {
   color: var(--text);
 }
 .story-image {
@@ -1348,12 +1347,12 @@ select:focus-visible {
   align-items: center;
   gap: 20px;
   overflow-x: auto;
-  min-height: 32px;
+  min-height: 40px;
   padding-inline: 8px;
 }
 @media (min-width: 1000px) { .navigation-items { justify-content: center; } }
-.navigation-item { display: flex; align-items: center; flex-shrink: 0; min-height: 32px; gap: 4px; }
-.navigation-icon { width: 25px; height: 25px; object-fit: contain; flex-shrink: 0; }
+.navigation-item { display: flex; align-items: center; flex-shrink: 0; min-height: 40px; gap: 6px; }
+.navigation-icon { width: 22px; height: 22px; flex-shrink: 0; }
 .navigation-label { display: grid; }
 .navigation-label > span { grid-area: 1 / 1; }
 .navigation-reserve { visibility: hidden; font-weight: 900; }
@@ -1406,3 +1405,17 @@ h1, h2 { overflow-wrap: anywhere; }
 }
 
 .outbound-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+
+/* Icon artwork stays square; controls keep comfortable, matching hit areas. */
+.story-actions > .bookmark-button,
+.story-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px;
+  flex-shrink: 0;
+}
+.story-actions svg { display: block; width: 20px; height: 20px; flex-shrink: 0; }
+.masthead-actions svg { width: 24px; height: 24px; }

@@ -27,11 +27,11 @@ export default function Header() {
         <Link href="/" aria-label="Lightpost home" className="masthead-logo font-logo">LIGHTPOST</Link>
         <div className="masthead-actions">
           <button onClick={toggleTheme} aria-label="Dark theme" aria-pressed={darkMode} title="Toggle light or dark theme">
-            <Icon name="moon" size={25} className="theme-moon" />
-            <Icon name="sun" size={25} className="theme-sun" />
+            <Icon name="moon" size={24} className="theme-moon" />
+            <Icon name="sun" size={24} className="theme-sun" />
           </button>
           <Link href="/saved" prefetch={false} aria-label="Saved stories" title="Saved stories">
-            <Icon name="bookmark" size={25} />
+            <Icon name="bookmark" size={24} />
           </Link>
         </div>
       </div>

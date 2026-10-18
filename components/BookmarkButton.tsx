@@ -45,7 +45,7 @@ export default function BookmarkButton({ article }: { article: NewsItem }) {
             : "Save for later"
       }
     >
-      <Icon name="bookmark" size={18} fill={saved ? "currentColor" : "none"} />
+      <Icon name="bookmark" size={20} fill={saved ? "currentColor" : "none"} />
       {error && <span>Unable to save</span>}
     </button>
   );

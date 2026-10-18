@@ -85,7 +85,7 @@ export default function NavbarComp() {
               aria-current={isActive ? "page" : undefined}
               className={`navigation-item font-menu ${isActive ? "text-string-primary" : "text-string-secondary"}`}
             >
-              <Icon name={item.icon} size={25} className="navigation-icon" />
+              <Icon name={item.icon} size={22} className="navigation-icon" />
               <span className="navigation-label">
                 <span aria-hidden="true" className="navigation-reserve">{item.name}</span>
                 <span className={isActive ? "text-string-primary font-black" : "text-string-secondary font-bold"}>{item.name}</span>
