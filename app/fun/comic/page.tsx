@@ -1,4 +1,5 @@
 "use client";
+import Icon from "@/components/Icon";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import GameFrame from "@/components/games/GameFrame";
@@ -75,7 +76,7 @@ export default function FunnyPapers() {
                 ? "Calling the wire…"
                 : mode === "xkcd"
                   ? "Another xkcd ↻"
-                  : "Read xkcd ↗"}
+                  : <>Read xkcd <Icon name="arrowUpRight" size={20} className="outbound-icon" /></>}
             </button>
           </div>
         </>
@@ -114,7 +115,7 @@ export default function FunnyPapers() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Read the original at xkcd ↗
+            Read the original at xkcd <Icon name="arrowUpRight" size={20} className="outbound-icon" />
           </a>
         </article>
       ) : (

@@ -14,6 +14,7 @@ const drawings = {
   moon: <path d="M20.5 14A9 9 0 0 1 10 3.5 9 9 0 1 0 20.5 14Z" />,
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" /></>,
   share: <><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4" /></>,
+  arrowUpRight: <><circle cx="12" cy="12" r="10" /><path d="M8 16 16 8M8 8h8v8" /></>,
   close: <path d="m6 6 12 12M6 18 18 6" />,
   refresh: <><path d="M20 10a8 8 0 1 0-1 7M20 4v6h-6" /></>,
 } satisfies Record<string, ReactNode>;

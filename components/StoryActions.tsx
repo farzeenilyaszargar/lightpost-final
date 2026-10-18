@@ -28,9 +28,9 @@ export default function StoryActions({ article }: { article: NewsItem }) {
         href={article.source_url}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-string-secondary hover:text-string-primary"
+        className="inline-flex items-center gap-1.5 text-string-secondary"
       >
-        {article.source} ↗
+        {article.source} <Icon name="arrowUpRight" size={20} className="outbound-icon" />
       </a>
       <button onClick={share} aria-label="Share story" className="p-1 text-string-secondary hover:text-string-primary">
         <Icon name="share" size={17} />

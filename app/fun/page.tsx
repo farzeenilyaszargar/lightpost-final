@@ -1,3 +1,4 @@
+import Icon from "@/components/Icon";
 import Link from "next/link";
 import { gameList } from "@/lib/games/core";
 import GameIllustration from "@/components/games/GameIllustration";
@@ -50,7 +51,7 @@ export default function Amusements() {
                 <span>{game.time}</span>
                 <strong>
                   {game.id === "comic" ? "Read the papers" : "Take a seat"}{" "}
-                  <span aria-hidden="true">↗</span>
+                  <span aria-hidden="true"><Icon name="arrowUpRight" size={20} className="outbound-icon" /></span>
                 </strong>
               </div>
             </div>

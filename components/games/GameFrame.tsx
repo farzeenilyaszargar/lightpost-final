@@ -1,3 +1,4 @@
+import Icon from "../Icon";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { gameList } from "@/lib/games/core";
@@ -48,7 +49,7 @@ export default function GameFrame({
               .map((game) => (
                 <Link key={game.id} href={`/fun/${game.id}`}>
                   {game.name}
-                  <span aria-hidden="true">↗</span>
+                  <span aria-hidden="true"><Icon name="arrowUpRight" size={20} className="outbound-icon" /></span>
                 </Link>
               ))}
           </div>

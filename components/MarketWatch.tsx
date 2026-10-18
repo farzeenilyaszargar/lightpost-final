@@ -1,4 +1,5 @@
 'use client';
+import Icon from "./Icon";
 
 import { useEffect, useState } from 'react';
 import { marketSymbols, type MarketQuote, type MarketSymbol } from '@/lib/markets';
@@ -89,7 +90,7 @@ export default function MarketWatch() {
         <p className="text-xs text-string-secondary">Quote as of {new Date(quote.asOf).toLocaleString('en', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })} IST. Daily closing-price chart; quotes may be delayed. Prices refresh every five minutes.</p>
       </> : <p className="py-6 text-sm" role="status">{pending ? 'Loading market prices…' : 'Prices for this market are temporarily unavailable.'}</p>}
       {failed && <p role="status" className="text-xs mt-3">Some prices could not refresh. Any displayed values retain their original timestamps. <button className="underline" disabled={pending} onClick={() => setAttempt(value => value + 1)}>Retry</button></p>}
-      <p className="text-xs text-string-secondary mt-3">Source: <a className="underline" href={`https://finance.yahoo.com/quote/${encodeURIComponent(selected)}/history/`} target="_blank" rel="noopener noreferrer">Yahoo Finance ↗</a></p>
+      <p className="text-xs text-string-secondary mt-3">Source: <a className="underline" href={`https://finance.yahoo.com/quote/${encodeURIComponent(selected)}/history/`} target="_blank" rel="noopener noreferrer">Yahoo Finance <Icon name="arrowUpRight" size={20} className="outbound-icon" /></a></p>
     </section>
   );
 }

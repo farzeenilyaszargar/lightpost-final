@@ -1,4 +1,5 @@
 "use client";
+import Icon from "./Icon";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { NewsItem } from "@/types/news";
@@ -45,7 +46,7 @@ export default function SavedStories() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Read original report ↗
+                  Read original report <Icon name="arrowUpRight" size={20} className="outbound-icon" />
                 </a>
               </div>
             ))}
@@ -60,7 +61,7 @@ export default function SavedStories() {
               href="/"
               className="border border-border rounded-full px-4 py-2"
             >
-              Back to the news ↗
+              Back to the news <Icon name="arrowUpRight" size={20} className="outbound-icon" />
             </Link>
           </div>
         )}
