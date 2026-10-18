@@ -71,9 +71,9 @@ export default function MarketWatch() {
             {[0, 1].map(copy => (
               <ul key={copy} className="market-price-track text-sm" aria-label={copy === 0 ? 'Latest available market prices' : undefined} aria-hidden={copy === 1 ? true : undefined}>
                 {symbols.map(symbol => (
-                  <li key={symbol} className={movementClass(quotes[symbol])}>
+                  <li key={symbol}>
                     <span className="font-bold">{marketSymbols[symbol]}</span>{' '}
-                    {quotes[symbol] ? `${price(quotes[symbol]!)}${movement(quotes[symbol]!)}` : pending ? '…' : 'Unavailable'}
+                    <span className={movementClass(quotes[symbol])}>{quotes[symbol] ? `${price(quotes[symbol]!)}${movement(quotes[symbol]!)}` : pending ? '…' : 'Unavailable'}</span>
                     {quotes[symbol] && <time dateTime={quotes[symbol]!.asOf} className="block text-xs text-string-secondary">{new Date(quotes[symbol]!.asOf).toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })} IST</time>}
                   </li>
                 ))}
@@ -83,12 +83,12 @@ export default function MarketWatch() {
         </div>
       </div>
       {quote ? <>
-        <p className={`mt-4 font-bold ${movementClass(quote)}`}>{quote.name} · {price(quote)}{movement(quote)}</p>
+        <p className="mt-4 font-bold">{quote.name} · <span className={movementClass(quote)}>{price(quote)}{movement(quote)}</span></p>
         <svg viewBox="0 0 800 220" role="img" aria-labelledby="market-chart-title market-chart-description" className="w-full max-h-72 text-string-primary">
           <title id="market-chart-title">{quote.name}: three months of daily closing prices</title>
           <desc id="market-chart-description">{history.length} trading sessions. First close {price(quote, history[0].close)}, last close {price(quote, history[history.length - 1].close)}. Low {price(quote, low)}, high {price(quote, high)}.</desc>
           {[30, 105, 180].map(y => <line key={y} x1="45" x2="745" y1={y} y2={y} stroke="currentColor" opacity="0.15" />)}
-          <polyline points={points} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+          <polyline className={movementClass(quote)} points={points} fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
           <g fill="currentColor" fontSize="12"><text x="45" y="210">{history[0].date.slice(0, 10)}</text><text x="745" y="210" textAnchor="end">{history[history.length - 1].date.slice(0, 10)}</text><text x="755" y="35">{high.toFixed(0)}</text><text x="755" y="180">{low.toFixed(0)}</text></g>
         </svg>
         <p className="text-xs text-string-secondary">Quote as of {new Date(quote.asOf).toLocaleString('en', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })} IST. Daily closing-price chart; quotes may be delayed. Prices refresh every five minutes.</p>
