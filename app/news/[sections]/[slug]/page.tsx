@@ -70,20 +70,6 @@ export default async function ArticlePage({ params }: Props) {
               })}{" "}
               IST
             </time>
-            <div className="mt-5 pt-4 border-t border-border">
-              <p className="text-sm text-string-secondary mb-3">
-                This is the publisher&apos;s news excerpt. Read the full report
-                at the original source.
-              </p>
-              <a
-                href={article.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block border border-border rounded-2xl px-3 py-1 text-sm hover:bg-string-primary hover:text-background"
-              >
-                Read at {article.source} ↗
-              </a>
-            </div>
             <StoryActions article={article} />
           </article>
         </div>

@@ -7,6 +7,10 @@ import { topicLabels } from "@/types/news";
 import StoryActions from "./StoryActions";
 import StoryImage from "./StoryImage";
 import VisualTitle from "./VisualTitle";
+import dynamic from "next/dynamic";
+const MarketWatch = dynamic(() => import("./MarketWatch"), {
+  loading: () => <p className="m-5 text-sm text-string-secondary" role="status">Loading the Market Ledger…</p>,
+});
 function storySnippet(description: string) {
   const text = description.replace(/\s*Continue reading\.\.\.\s*$/i, "").trim();
   if (text.length <= 160) return text;
@@ -117,17 +121,11 @@ export default function NewsExplorer({
     more,
   } = useNewsPage(initialFeed, topic);
   const filtering = source !== "all";
-  const top = articles[0];
-  const rest = articles.slice(1);
   const word =
     words[
       Math.floor(Date.parse(feed.updatedAt || "2026-01-01") / 86400000) %
         words.length
     ];
-  const column = (index: number) =>
-    rest
-      .filter((_, i) => i % 4 === index)
-      .map((article) => <StoryCard key={article.id} article={article} />);
   return (
     <main id="main" className="w-full flex flex-col items-center">
       {topic ? (
@@ -176,6 +174,7 @@ export default function NewsExplorer({
             </button>
           </div>
         </div>
+        {topic === "business" && <MarketWatch />}
         {feed.unavailableSources.length > 0 && (
           <p role="status" className="m-5 text-sm text-string-secondary">
             {feed.stale
@@ -223,55 +222,31 @@ export default function NewsExplorer({
               </button>
             )}
           </div>
-        ) : topic || filtering ? (
-          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
-            {articles.map((article) => (
-              <StoryCard key={article.id} article={article} />
-            ))}
-          </div>
         ) : (
-          <div className="flex md:flex-row flex-col justify-between pt-5 gap-5 p-5">
-            <div className="md:w-1/4 min-w-0 space-y-5">
-              <h2 className="text-2xl p-3 mb-0 font-bold -mt-3">
-                What&apos;s Happening 🌏
-              </h2>
-              <div className="p-3 border border-border rounded-2xl">
+          <div className="news-columns p-5">
+            {!topic && !filtering && (
+              <aside className="p-3 border border-border rounded-2xl">
+                <h2 className="text-2xl mb-2 font-bold">What&apos;s Happening</h2>
                 <p className="text-sm text-string-secondary leading-relaxed">
                   Fresh headlines from BBC News and The Guardian. Read different
                   perspectives and follow each story to its original source.
                 </p>
-              </div>
-              <div className="space-y-5">{column(0)}</div>
-            </div>
-            <div className="md:w-1/2 min-w-0">
-              <div className="mb-5">
-                {top && <StoryCard article={top} featured />}
-              </div>
-              <div className="flex sm:flex-row flex-col gap-5">
-                <div className="sm:w-1/2 min-w-0 space-y-5">{column(1)}</div>
-                <div className="sm:w-1/2 min-w-0 space-y-5">{column(2)}</div>
-              </div>
-            </div>
-            <div className="md:w-1/4 min-w-0 space-y-5">
+              </aside>
+            )}
+            {articles.map((article, index) => (
+              <StoryCard key={article.id} article={article} featured={!topic && !filtering && index === 0} />
+            ))}
+            {!topic && !filtering && (
               <aside className="p-5 border border-border rounded-2xl">
-                <h2 className="text-xs text-string-secondary mb-2">
-                  Word of the Day
-                </h2>
+                <h2 className="text-xs text-string-secondary mb-2">Word of the Day</h2>
                 <p className="text-2xl font-black">
                   {word.word}
-                  <span className="text-xs ml-2 text-string-secondary font-extralight">
-                    ({word.part})
-                  </span>
+                  <span className="text-xs ml-2 text-string-secondary font-extralight">({word.part})</span>
                 </p>
-                <p className="text-sm text-string-secondary font-extralight">
-                  {word.pronunciation}
-                </p>
-                <p className="text-sm text-string-secondary mt-2">
-                  {word.definition}
-                </p>
+                <p className="text-sm text-string-secondary font-extralight">{word.pronunciation}</p>
+                <p className="text-sm text-string-secondary mt-2">{word.definition}</p>
               </aside>
-              <div className="space-y-5">{column(3)}</div>
-            </div>
+            )}
           </div>
         )}
         {feed.nextOffset !== null && articles.length > 0 && (

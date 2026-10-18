@@ -90,3 +90,9 @@ The four original font families are self-hosted with Latin and Latin Extended su
 The first news render includes 21 stories. Load more, search, and publisher filters fetch small API pages; search still covers every cached story. Article and section links do not prefetch entire collections. Publisher images use responsive WebP optimization on an explicit host allowlist, reserve their layout space, and load lazily except for the lead image. Image optimization requires the normal Node/Next.js server or compatible hosting.
 
 `npm run perf:check` guards production HTML, stylesheet, initial story count, preload count, and API payload budgets. [Measured before/after results](docs/performance.md) describe the scope and limitations of the local comparison.
+
+## Market Ledger
+
+The Markets edition loads a small SVG chart and a static list of prices on demand. All section headings and prices are stationary; there are no marquees. News listings use four flowing columns on desktop, two on tablets, and one on narrow screens.
+
+`/api/markets?symbol=AAPL` serves allowlisted symbols only (S&P 500, Nasdaq Composite, Nifty 50, Apple, Microsoft, Nvidia). It uses Yahoo Finance's public, unofficial chart endpoint without an API key or paid account. This endpoint is externally maintained and can change or rate-limit requests. Quotes cache for five minutes, carry their original market timestamps and currencies, and may be delayed. The chart displays three months of daily closing prices. Source failures show an unavailable message; a browser retains its last successful quote with the original timestamp. No simulated prices are used.

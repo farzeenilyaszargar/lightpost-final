@@ -8,7 +8,7 @@ export default function NewsSkeleton({ title }: { title?: string }) {
         <p className="text-string-secondary text-sm mb-5" role="status">
           Loading the latest news…
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5" aria-hidden="true">
+        <div className="news-columns" aria-hidden="true">
           {[1, 2, 3, 4].map((n) => (
             <div key={n} className="border border-border rounded-2xl h-64 motion-safe:animate-pulse" />
           ))}

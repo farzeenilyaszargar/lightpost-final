@@ -54,19 +54,6 @@
   -webkit-text-stroke: 1px var(--color-background);
 }
 
-@keyframes marq {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-.marq {
-  animation: marq 60s linear infinite;
-}
-
 /* Small functional additions using the original newspaper palette and typography. */
 body {
   margin: 0;
@@ -226,11 +213,6 @@ select:focus-visible {
   }
   .newspaper-toolbar > div {
     max-width: 100%;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .marq {
-    animation: none;
   }
 }
 
@@ -1378,19 +1360,19 @@ select:focus-visible {
 .navigation-label { display: grid; }
 .navigation-label > span { grid-area: 1 / 1; }
 .navigation-reserve { visibility: hidden; font-weight: 900; }
-.section-title { display: flex; overflow: hidden; font-size: 24px; line-height: 32px; }
-.section-title-track { display: flex; flex-shrink: 0; min-width: 100%; justify-content: space-around; }
-.section-title-track > span { flex-shrink: 0; white-space: nowrap; padding-inline: 24px; }
-.section-title:hover .marq, .section-title:focus-within .marq { animation-play-state: paused; }
+.section-title { padding: 8px 20px; font-size: 24px; line-height: 32px; }
 h1, h2 { overflow-wrap: anywhere; }
 @media (max-width: 767px) {
   .masthead { grid-template-columns: minmax(0, 1fr) auto; min-height: 62px; }
   .masthead-logo { grid-column: 1; font-size: clamp(21px, 6.8vw, 32px); padding-left: 6px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .section-title-track { justify-content: flex-start; }
-}
 
 .navigation-item:hover, .navigation-item:focus-visible { color: var(--text); }
 .navigation-item[aria-current="page"] .navigation-icon { stroke-width: 1.9; }
 .masthead-actions svg { flex-shrink: 0; }
+
+/* Independent newspaper columns let each story follow the previous card. */
+.news-columns { column-count: 1; column-gap: 20px; }
+.news-columns > * { break-inside: avoid; margin-bottom: 20px; }
+@media (min-width: 640px) { .news-columns { column-count: 2; } }
+@media (min-width: 1024px) { .news-columns { column-count: 4; } }

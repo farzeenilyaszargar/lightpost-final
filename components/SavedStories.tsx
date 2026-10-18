@@ -35,7 +35,7 @@ export default function SavedStories() {
         {!ready ? (
           <p>Loading saved stories…</p>
         ) : items.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
+          <div className="news-columns">
             {items.map((article) => (
               <div key={article.id}>
                 <StoryCard article={article} />
